@@ -11,6 +11,38 @@
   let editCategory = $state('');
   let editStatus = $state('');
 
+  type SortKey = 'title' | 'category' | 'status' | 'date';
+  let sortBy = $state<SortKey>('date');
+  let sortDir = $state<'asc' | 'desc'>('desc');
+
+  const sortedEntries = $derived([...entries].sort((a, b) => {
+    let cmp = 0;
+    switch (sortBy) {
+      case 'title':
+        cmp = (a.title ?? '').localeCompare(b.title ?? '');
+        break;
+      case 'category':
+        cmp = (a.media_category ?? '').localeCompare(b.media_category ?? '');
+        break;
+      case 'status':
+        cmp = (a.status ?? '').localeCompare(b.status ?? '');
+        break;
+      case 'date':
+        cmp = (a.date_added ?? '').localeCompare(b.date_added ?? '');
+        break;
+    }
+    return sortDir === 'desc' ? -cmp : cmp;
+  }));
+
+  function toggleSort(key: SortKey) {
+    if (sortBy === key) {
+      sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortBy = key;
+      sortDir = 'desc';
+    }
+  }
+
   async function markComplete(id: number) {
     saving = true;
     try {
@@ -81,15 +113,23 @@
   <table>
     <thead>
       <tr>
-        <th>Title</th>
-        <th>Category</th>
-        <th>Status</th>
-        <th>Added</th>
+        <th class="sortable" onclick={() => toggleSort('title')}>
+          Title {sortBy === 'title' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+        </th>
+        <th class="sortable" onclick={() => toggleSort('category')}>
+          Category {sortBy === 'category' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+        </th>
+        <th class="sortable" onclick={() => toggleSort('status')}>
+          Status {sortBy === 'status' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+        </th>
+        <th class="sortable" onclick={() => toggleSort('date')}>
+          Added {sortBy === 'date' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+        </th>
         <th></th>
       </tr>
     </thead>
     <tbody>
-      {#each entries as entry (entry.id)}
+      {#each sortedEntries as entry (entry.id)}
         <tr>
           {#if editingId === entry.id}
             <td>
@@ -156,6 +196,13 @@
   }
   th {
     font-weight: 600;
+  }
+  th.sortable {
+    cursor: pointer;
+    user-select: none;
+  }
+  th.sortable:hover {
+    background: #eee;
   }
   .done {
     color: #090;
