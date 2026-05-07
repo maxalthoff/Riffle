@@ -5,3 +5,11 @@ export const STATUSES = ['Want to Consume', 'In Progress', 'Completed', 'On Hold
 export type Status = typeof STATUSES[number];
 
 export const FORM_STATUSES = STATUSES.filter(s => s !== 'Completed');
+
+export const CREATOR_LABEL: Record<string, string> = {
+  Movie: 'Director',
+  Book: 'Author',
+  Show: 'Creator',
+  Game: 'Developer',
+  Podcast: 'Host',
+};

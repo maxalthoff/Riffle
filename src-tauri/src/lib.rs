@@ -2,21 +2,31 @@ use tauri_plugin_sql::{Migration, MigrationKind};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let migrations = vec![Migration {
-        version: 1,
-        description: "create core_media table",
-        sql: "CREATE TABLE IF NOT EXISTS core_media (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            media_category TEXT,
-            status TEXT,
-            rating INTEGER,
-            user_review TEXT,
-            date_added TEXT NOT NULL DEFAULT (datetime('now')),
-            date_completed TEXT
-        );",
-        kind: MigrationKind::Up,
-    }];
+    let migrations = vec![
+        Migration {
+            version: 1,
+            description: "create core_media table",
+            sql: "CREATE TABLE IF NOT EXISTS core_media (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                media_category TEXT,
+                status TEXT,
+                rating INTEGER,
+                user_review TEXT,
+                date_added TEXT NOT NULL DEFAULT (datetime('now')),
+                date_completed TEXT
+            );",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 2,
+            description: "add year, creator, genre columns",
+            sql: "ALTER TABLE core_media ADD COLUMN year INTEGER;
+                  ALTER TABLE core_media ADD COLUMN creator TEXT;
+                  ALTER TABLE core_media ADD COLUMN genre TEXT;",
+            kind: MigrationKind::Up,
+        },
+    ];
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())

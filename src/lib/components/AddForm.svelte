@@ -1,14 +1,19 @@
 <script lang="ts">
   import { getDb } from '$lib/db';
-  import { CATEGORIES, FORM_STATUSES } from '$lib/types';
+  import { CATEGORIES, FORM_STATUSES, CREATOR_LABEL } from '$lib/types';
 
   let { onEntryAdded }: { onEntryAdded: () => void } = $props();
 
   let title = $state('');
   let category = $state('Movie');
   let status = $state('Want to Consume');
+  let year = $state('');
+  let creator = $state('');
+  let genre = $state('');
   let saving = $state(false);
   let error = $state('');
+
+  let creatorLabel = $derived(CREATOR_LABEL[category] ?? 'Creator');
 
   async function handleSubmit(e: Event) {
     e.preventDefault();
@@ -19,12 +24,16 @@
     try {
       const db = await getDb();
       await db.execute(
-        'INSERT INTO core_media (title, media_category, status) VALUES ($1, $2, $3)',
-        [trimmed, category, status]
+        `INSERT INTO core_media (title, media_category, status, year, creator, genre)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, genre.trim() || null]
       );
       title = '';
       category = 'Movie';
       status = 'Want to Consume';
+      year = '';
+      creator = '';
+      genre = '';
       onEntryAdded();
     } catch (e) {
       error = String(e);
@@ -57,6 +66,28 @@
       {saving ? 'Adding...' : 'Add Entry'}
     </button>
   </div>
+  <div class="row secondary">
+    <input
+      type="number"
+      bind:value={year}
+      placeholder="Year"
+      min="1000"
+      max="2100"
+      disabled={saving}
+    />
+    <input
+      type="text"
+      bind:value={creator}
+      placeholder={creatorLabel}
+      disabled={saving}
+    />
+    <input
+      type="text"
+      bind:value={genre}
+      placeholder="Genre"
+      disabled={saving}
+    />
+  </div>
   {#if error}
     <p class="error">{error}</p>
   {/if}
@@ -69,6 +100,9 @@
     align-items: center;
     flex-wrap: wrap;
   }
+  .secondary {
+    margin-top: 0.4rem;
+  }
   input, select, button {
     padding: 0.4rem 0.6rem;
     font-size: 0.95rem;
@@ -76,6 +110,10 @@
   input {
     flex: 1;
     min-width: 160px;
+  }
+  input[type="number"] {
+    max-width: 100px;
+    flex: 0 1 auto;
   }
   .error {
     color: #c00;

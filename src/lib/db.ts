@@ -18,4 +18,7 @@ export interface MediaEntry {
   user_review: string | null;
   date_added: string;
   date_completed: string | null;
+  year: number | null;
+  creator: string | null;
+  genre: string | null;
 }
