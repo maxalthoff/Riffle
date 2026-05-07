@@ -1,4 +1,4 @@
-export const CATEGORIES = ['Movie', 'Book'] as const;
+export const CATEGORIES = ['Movie', 'Book', 'Show', 'Game', 'Podcast'] as const;
 export type Category = typeof CATEGORIES[number];
 
 export const STATUSES = ['Want to Consume', 'In Progress', 'Completed', 'On Hold', 'Dropped'] as const;
