@@ -1,6 +1,7 @@
 <script lang="ts">
   import { getDb } from '$lib/db';
   import { CATEGORIES, FORM_STATUSES, CREATOR_LABEL } from '$lib/types';
+  import { CATEGORY_DETAILS } from '$lib/schema';
 
   let { onEntryAdded }: { onEntryAdded: () => void } = $props();
 
@@ -10,10 +11,16 @@
   let year = $state('');
   let creator = $state('');
   let genre = $state('');
+  let detailsState = $state<Record<string, string>>({});
   let saving = $state(false);
   let error = $state('');
 
   let creatorLabel = $derived(CREATOR_LABEL[category] ?? 'Creator');
+
+  $effect(() => {
+    category;
+    detailsState = {};
+  });
 
   async function handleSubmit(e: Event) {
     e.preventDefault();
@@ -23,10 +30,18 @@
     error = '';
     try {
       const db = await getDb();
+      const detailsObj: Record<string, string | number> = {};
+      for (const field of CATEGORY_DETAILS[category] ?? []) {
+        const val = detailsState[field.key];
+        if (val !== undefined && val !== '') {
+          detailsObj[field.key] = field.type === 'number' ? Number(val) : val;
+        }
+      }
+      const detailsJson = Object.keys(detailsObj).length > 0 ? JSON.stringify(detailsObj) : null;
       await db.execute(
-        `INSERT INTO core_media (title, media_category, status, year, creator, genre)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, genre.trim() || null]
+        `INSERT INTO core_media (title, media_category, status, year, creator, genre, details)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, genre.trim() || null, detailsJson]
       );
       title = '';
       category = 'Movie';
@@ -34,6 +49,7 @@
       year = '';
       creator = '';
       genre = '';
+      detailsState = {};
       onEntryAdded();
     } catch (e) {
       error = String(e);
@@ -88,6 +104,18 @@
       disabled={saving}
     />
   </div>
+  {#if CATEGORY_DETAILS[category]}
+    <div class="row tertiary">
+      {#each CATEGORY_DETAILS[category] as field}
+        <input
+          type={field.type === 'number' ? 'number' : 'text'}
+          bind:value={detailsState[field.key]}
+          placeholder={field.label}
+          disabled={saving}
+        />
+      {/each}
+    </div>
+  {/if}
   {#if error}
     <p class="error">{error}</p>
   {/if}
@@ -101,6 +129,9 @@
     flex-wrap: wrap;
   }
   .secondary {
+    margin-top: 0.4rem;
+  }
+  .tertiary {
     margin-top: 0.4rem;
   }
   input, select, button {

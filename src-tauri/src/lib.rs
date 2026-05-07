@@ -26,6 +26,12 @@ pub fn run() {
                   ALTER TABLE core_media ADD COLUMN genre TEXT;",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 3,
+            description: "add details JSON column",
+            sql: "ALTER TABLE core_media ADD COLUMN details TEXT;",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

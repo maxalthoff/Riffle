@@ -1,6 +1,7 @@
 <script lang="ts">
   import { getDb, type MediaEntry } from '$lib/db';
   import { CATEGORIES, STATUSES, CREATOR_LABEL } from '$lib/types';
+  import { CATEGORY_DETAILS, parseDetails, type DetailField } from '$lib/schema';
 
   let { entries, onEntriesChanged }: { entries: MediaEntry[]; onEntriesChanged: () => void } = $props();
 
@@ -13,15 +14,19 @@
   let editYear = $state('');
   let editCreator = $state('');
   let editGenre = $state('');
+  let editDetails = $state<Record<string, string>>({});
 
-  type SortKey = 'title' | 'category' | 'status' | 'date';
-  let sortBy = $state<SortKey>('date');
+  let sortBy = $state('date');
   let sortDir = $state<'asc' | 'desc'>('desc');
   let searchQuery = $state('');
   let filterCategory = $state('');
   let filterStatus = $state('');
 
   let editCreatorLabel = $derived(CREATOR_LABEL[editCategory] ?? 'Creator');
+  let detailColumns = $derived<DetailField[]>(
+    filterCategory && CATEGORY_DETAILS[filterCategory] ? CATEGORY_DETAILS[filterCategory] : []
+  );
+  let columnCount = $derived(5 + detailColumns.length);
 
   const filteredEntries = $derived(entries.filter(e => {
     const matchesSearch = !searchQuery || e.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -45,11 +50,19 @@
       case 'date':
         cmp = (a.date_added ?? '').localeCompare(b.date_added ?? '');
         break;
+      default: {
+        const aVal = parseDetails(a.details)[sortBy];
+        const bVal = parseDetails(b.details)[sortBy];
+        if (aVal == null && bVal == null) cmp = 0;
+        else if (aVal == null) cmp = 1;
+        else if (bVal == null) cmp = -1;
+        else cmp = Number(aVal) - Number(bVal) || String(aVal).localeCompare(String(bVal));
+      }
     }
     return sortDir === 'desc' ? -cmp : cmp;
   }));
 
-  function toggleSort(key: SortKey) {
+  function toggleSort(key: string) {
     if (sortBy === key) {
       sortDir = sortDir === 'asc' ? 'desc' : 'asc';
     } else {
@@ -80,6 +93,12 @@
     editYear = entry.year?.toString() ?? '';
     editCreator = entry.creator ?? '';
     editGenre = entry.genre ?? '';
+    const parsed = parseDetails(entry.details);
+    editDetails = {};
+    for (const field of CATEGORY_DETAILS[editCategory] ?? []) {
+      const val = parsed[field.key];
+      editDetails[field.key] = val !== undefined ? String(val) : '';
+    }
     confirmingId = null;
   }
 
@@ -93,9 +112,17 @@
     saving = true;
     try {
       const db = await getDb();
+      const detailsObj: Record<string, string | number> = {};
+      for (const field of CATEGORY_DETAILS[editCategory] ?? []) {
+        const val = editDetails[field.key];
+        if (val !== undefined && val !== '') {
+          detailsObj[field.key] = field.type === 'number' ? Number(val) : val;
+        }
+      }
+      const detailsJson = Object.keys(detailsObj).length > 0 ? JSON.stringify(detailsObj) : null;
       await db.execute(
-        'UPDATE core_media SET title = $1, media_category = $2, status = $3, year = $4, creator = $5, genre = $6 WHERE id = $7',
-        [editTitle.trim(), editCategory, editStatus, editYear ? Number(editYear) : null, editCreator.trim() || null, editGenre.trim() || null, editingId]
+        'UPDATE core_media SET title = $1, media_category = $2, status = $3, year = $4, creator = $5, genre = $6, details = $7 WHERE id = $8',
+        [editTitle.trim(), editCategory, editStatus, editYear ? Number(editYear) : null, editCreator.trim() || null, editGenre.trim() || null, detailsJson, editingId]
       );
       editingId = null;
       onEntriesChanged();
@@ -163,6 +190,11 @@
         <th class="sortable" onclick={() => toggleSort('status')}>
           Status {sortBy === 'status' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
         </th>
+        {#each detailColumns as col}
+          <th class="sortable" onclick={() => toggleSort(col.key)}>
+            {col.label} {sortBy === col.key ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+          </th>
+        {/each}
         <th class="sortable" onclick={() => toggleSort('date')}>
           Added {sortBy === 'date' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
         </th>
@@ -173,7 +205,7 @@
       {#each sortedEntries as entry (entry.id)}
         <tr>
           {#if editingId === entry.id}
-            <td colspan="5">
+            <td colspan={columnCount}>
               <div class="edit-fields">
                 <input type="text" bind:value={editTitle} disabled={saving} />
                 <select bind:value={editCategory} disabled={saving}>
@@ -189,6 +221,14 @@
                 <input type="number" bind:value={editYear} placeholder="Year" min="1000" max="2100" disabled={saving} />
                 <input type="text" bind:value={editCreator} placeholder={editCreatorLabel} disabled={saving} />
                 <input type="text" bind:value={editGenre} placeholder="Genre" disabled={saving} />
+                {#each CATEGORY_DETAILS[editCategory] ?? [] as field}
+                  <input
+                    type={field.type === 'number' ? 'number' : 'text'}
+                    bind:value={editDetails[field.key]}
+                    placeholder={field.label}
+                    disabled={saving}
+                  />
+                {/each}
                 <button onclick={saveEdit} disabled={saving || !editTitle.trim()}>Save</button>
                 <button onclick={cancelEdit} disabled={saving}>Cancel</button>
               </div>
@@ -197,6 +237,9 @@
             <td>{entry.title}</td>
             <td>{entry.media_category ?? '—'}</td>
             <td>{entry.status ?? '—'}</td>
+            {#each detailColumns as col}
+              <td>{parseDetails(entry.details)[col.key] ?? '—'}</td>
+            {/each}
             <td>{entry.date_added}</td>
             <td>
               {#if entry.status !== 'Completed'}
