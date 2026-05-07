@@ -27,7 +27,7 @@
     <p class="error">Database error: {dbError}</p>
   {:else}
     <AddForm onEntryAdded={loadEntries} />
-    <EntryList {entries} onMarkComplete={loadEntries} />
+    <EntryList {entries} onEntriesChanged={loadEntries} />
   {/if}
 </main>
 

@@ -1,21 +1,76 @@
 <script lang="ts">
   import { getDb, type MediaEntry } from '$lib/db';
+  import { CATEGORIES, STATUSES } from '$lib/types';
 
-  let { entries, onMarkComplete }: { entries: MediaEntry[]; onMarkComplete: () => void } = $props();
+  let { entries, onEntriesChanged }: { entries: MediaEntry[]; onEntriesChanged: () => void } = $props();
 
-  let updating = $state<number | null>(null);
+  let saving = $state(false);
+  let editingId = $state<number | null>(null);
+  let confirmingId = $state<number | null>(null);
+  let editTitle = $state('');
+  let editCategory = $state('');
+  let editStatus = $state('');
 
   async function markComplete(id: number) {
-    updating = id;
+    saving = true;
     try {
       const db = await getDb();
       await db.execute(
         "UPDATE core_media SET status = 'Completed', date_completed = datetime('now') WHERE id = $1",
         [id]
       );
-      onMarkComplete();
+      onEntriesChanged();
     } finally {
-      updating = null;
+      saving = false;
+    }
+  }
+
+  function startEdit(entry: MediaEntry) {
+    editingId = entry.id;
+    editTitle = entry.title;
+    editCategory = entry.media_category ?? 'Movie';
+    editStatus = entry.status ?? 'Want to Consume';
+    confirmingId = null;
+  }
+
+  function cancelEdit() {
+    editingId = null;
+    confirmingId = null;
+  }
+
+  async function saveEdit() {
+    if (!editTitle.trim() || editingId === null) return;
+    saving = true;
+    try {
+      const db = await getDb();
+      await db.execute(
+        'UPDATE core_media SET title = $1, media_category = $2, status = $3 WHERE id = $4',
+        [editTitle.trim(), editCategory, editStatus, editingId]
+      );
+      editingId = null;
+      onEntriesChanged();
+    } finally {
+      saving = false;
+    }
+  }
+
+  function requestDelete(id: number) {
+    if (confirmingId === id) {
+      executeDelete(id);
+    } else {
+      confirmingId = id;
+    }
+  }
+
+  async function executeDelete(id: number) {
+    saving = true;
+    confirmingId = null;
+    try {
+      const db = await getDb();
+      await db.execute('DELETE FROM core_media WHERE id = $1', [id]);
+      onEntriesChanged();
+    } finally {
+      saving = false;
     }
   }
 </script>
@@ -36,22 +91,48 @@
     <tbody>
       {#each entries as entry (entry.id)}
         <tr>
-          <td>{entry.title}</td>
-          <td>{entry.media_category ?? '—'}</td>
-          <td>{entry.status ?? '—'}</td>
-          <td>{entry.date_added}</td>
-          <td>
-            {#if entry.status !== 'Completed'}
-              <button
-                onclick={() => markComplete(entry.id)}
-                disabled={updating === entry.id}
-              >
-                {updating === entry.id ? '...' : 'Mark Complete'}
+          {#if editingId === entry.id}
+            <td>
+              <input type="text" bind:value={editTitle} disabled={saving} />
+            </td>
+            <td>
+              <select bind:value={editCategory} disabled={saving}>
+                {#each CATEGORIES as c}
+                  <option value={c}>{c}</option>
+                {/each}
+              </select>
+            </td>
+            <td>
+              <select bind:value={editStatus} disabled={saving}>
+                {#each STATUSES as s}
+                  <option value={s}>{s}</option>
+                {/each}
+              </select>
+            </td>
+            <td>{entry.date_added}</td>
+            <td>
+              <button onclick={saveEdit} disabled={saving || !editTitle.trim()}>Save</button>
+              <button onclick={cancelEdit} disabled={saving}>Cancel</button>
+            </td>
+          {:else}
+            <td>{entry.title}</td>
+            <td>{entry.media_category ?? '—'}</td>
+            <td>{entry.status ?? '—'}</td>
+            <td>{entry.date_added}</td>
+            <td>
+              {#if entry.status !== 'Completed'}
+                <button onclick={() => markComplete(entry.id)} disabled={saving}>
+                  {saving ? '...' : 'Mark Complete'}
+                </button>
+              {:else}
+                <span class="done">✓</span>
+              {/if}
+              <button onclick={() => startEdit(entry)} disabled={saving}>Edit</button>
+              <button onclick={() => requestDelete(entry.id)} disabled={saving}>
+                {confirmingId === entry.id ? 'Confirm?' : 'Delete'}
               </button>
-            {:else}
-              <span class="done">✓</span>
-            {/if}
-          </td>
+            </td>
+          {/if}
         </tr>
       {/each}
     </tbody>
@@ -79,5 +160,9 @@
   .done {
     color: #090;
     font-weight: bold;
+  }
+  input, select {
+    padding: 0.25rem 0.4rem;
+    font-size: 0.9rem;
   }
 </style>
