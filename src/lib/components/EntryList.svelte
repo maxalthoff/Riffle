@@ -14,8 +14,18 @@
   type SortKey = 'title' | 'category' | 'status' | 'date';
   let sortBy = $state<SortKey>('date');
   let sortDir = $state<'asc' | 'desc'>('desc');
+  let searchQuery = $state('');
+  let filterCategory = $state('');
+  let filterStatus = $state('');
 
-  const sortedEntries = $derived([...entries].sort((a, b) => {
+  const filteredEntries = $derived(entries.filter(e => {
+    const matchesSearch = !searchQuery || e.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = !filterCategory || e.media_category === filterCategory;
+    const matchesStatus = !filterStatus || e.status === filterStatus;
+    return matchesSearch && matchesCategory && matchesStatus;
+  }));
+
+  const sortedEntries = $derived([...filteredEntries].sort((a, b) => {
     let cmp = 0;
     switch (sortBy) {
       case 'title':
@@ -110,6 +120,29 @@
 {#if entries.length === 0}
   <p class="empty">No entries yet. Add your first movie or book above.</p>
 {:else}
+  <div class="filters">
+    <input
+      type="search"
+      bind:value={searchQuery}
+      placeholder="Search by title..."
+    />
+    <select bind:value={filterCategory}>
+      <option value="">All Categories</option>
+      {#each CATEGORIES as c}
+        <option value={c}>{c}</option>
+      {/each}
+    </select>
+    <select bind:value={filterStatus}>
+      <option value="">All Statuses</option>
+      {#each STATUSES as s}
+        <option value={s}>{s}</option>
+      {/each}
+    </select>
+  </div>
+
+  {#if filteredEntries.length === 0}
+    <p class="empty">No entries match your filters.</p>
+  {:else}
   <table>
     <thead>
       <tr>
@@ -177,6 +210,7 @@
       {/each}
     </tbody>
   </table>
+  {/if}
 {/if}
 
 <style>
@@ -207,6 +241,21 @@
   .done {
     color: #090;
     font-weight: bold;
+  }
+  .filters {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .filters input,
+  .filters select {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.9rem;
+  }
+  .filters input {
+    flex: 1;
+    min-width: 160px;
   }
   input, select {
     padding: 0.25rem 0.4rem;
