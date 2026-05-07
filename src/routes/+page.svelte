@@ -2,12 +2,13 @@
   import { onMount } from 'svelte';
   import { getDb, type MediaEntry } from '$lib/db';
   import { seedDatabase } from '$lib/seed';
-  import AddForm from '$lib/components/AddForm.svelte';
+  import EntryDialog from '$lib/components/EntryDialog.svelte';
   import EntryList from '$lib/components/EntryList.svelte';
 
   let seeded = $state(false);
   let entries: MediaEntry[] = $state([]);
   let dbError = $state('');
+  let editingEntry = $state<MediaEntry | null | undefined>(undefined);
 
   async function loadEntries() {
     try {
@@ -23,6 +24,11 @@
     }
   }
 
+  function handleClose() {
+    editingEntry = undefined;
+    loadEntries();
+  }
+
   onMount(loadEntries);
 </script>
 
@@ -32,10 +38,14 @@
   {#if dbError}
     <p class="error">Database error: {dbError}</p>
   {:else}
-    <AddForm onEntryAdded={loadEntries} />
-    <EntryList {entries} onEntriesChanged={loadEntries} />
+    <button class="add-btn" onclick={() => editingEntry = null}>+ Add Entry</button>
+    <EntryList {entries} onEntriesChanged={loadEntries} onEdit={(e) => editingEntry = e} />
   {/if}
 </main>
+
+{#if editingEntry !== undefined}
+  <EntryDialog entry={editingEntry} onClose={handleClose} />
+{/if}
 
 <style>
   main {
@@ -46,8 +56,23 @@
   }
 
   h1 {
-    margin: 0 0 1.5rem;
+    margin: 0 0 0.75rem;
     font-size: 1.5rem;
+  }
+
+  .add-btn {
+    margin-bottom: 0.75rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border: 1px solid #396cd8;
+    background: #396cd8;
+    color: #fff;
+    border-radius: 4px;
+  }
+
+  .add-btn:hover {
+    background: #2d5abf;
   }
 
   .error {
