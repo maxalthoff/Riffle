@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { fade, scale } from 'svelte/transition';
   import { getDb, type MediaEntry } from '$lib/db';
   import { CATEGORIES, STATUSES, CREATOR_LABEL } from '$lib/types';
   import { CATEGORY_DETAILS } from '$lib/schema';
@@ -21,8 +22,16 @@
   let dateCompleted = $state('');
   let today = new Date().toISOString().substring(0, 10);
 
+  const CATEGORY_ICON: Record<string, string> = {
+    Movie: '🎬', Book: '📖', Show: '📺', Game: '🎮', Podcast: '🎙️',
+  };
+
   let creatorLabel = $derived(CREATOR_LABEL[category] ?? 'Creator');
-  let dialogTitle = $derived(editing ? `Edit ${entry!.title}` : 'Add Entry');
+  let dialogTitle = $derived(
+    editing
+      ? `Edit ${CATEGORY_ICON[entry!.media_category ?? ''] ?? ''} ${entry!.title}`
+      : 'Add Entry'
+  );
 
   function resetForm(e: MediaEntry | null) {
     if (e) {
@@ -113,8 +122,8 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="overlay" onclick={handleOverlayClick}>
-  <div class="dialog" onclick={(e) => e.stopPropagation()}>
+<div class="overlay" transition:fade={{ duration: 120 }} onclick={handleOverlayClick}>
+  <div class="dialog" transition:scale={{ start: 0.95, duration: 120 }} onclick={(e) => e.stopPropagation()}>
     <div class="header">
       <h2>{dialogTitle}</h2>
       <button class="close" onclick={onClose} disabled={saving}>✕</button>
@@ -160,7 +169,7 @@
         </label>
       </div>
 
-      <div class="row">
+      <div class="row date-section">
         <label>
           Started on
           <input type="date" bind:value={dateStarted} max={today} disabled={saving} />
@@ -216,7 +225,7 @@
   .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.35);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -224,10 +233,10 @@
   }
   .dialog {
     background: #fff;
-    border-radius: 8px;
-    padding: 1.5rem;
+    border-radius: 10px;
+    padding: 1.75rem;
     width: 90%;
-    max-width: 500px;
+    max-width: 560px;
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
@@ -275,7 +284,8 @@
   }
   input:focus, select:focus {
     outline: none;
-    border-color: #396cd8;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
   }
   .row {
     display: flex;
@@ -292,6 +302,10 @@
     font-weight: 600;
     color: #555;
   }
+  .date-section {
+    border-top: 1px solid #f3f4f6;
+    padding-top: 0.75rem;
+  }
   .error {
     color: #c00;
     margin: 0;
@@ -301,7 +315,9 @@
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;
-    margin-top: 0.5rem;
+    border-top: 1px solid #f3f4f6;
+    padding-top: 0.75rem;
+    margin-top: 0.25rem;
   }
   .actions button {
     padding: 0.4rem 1rem;
