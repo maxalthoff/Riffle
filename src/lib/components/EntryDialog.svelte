@@ -19,6 +19,7 @@
   let detailsState = $state<Record<string, string>>({});
   let dateStarted = $state('');
   let dateCompleted = $state('');
+  let today = new Date().toISOString().substring(0, 10);
 
   let creatorLabel = $derived(CREATOR_LABEL[category] ?? 'Creator');
   let dialogTitle = $derived(editing ? `Edit ${entry!.title}` : 'Add Entry');
@@ -162,11 +163,11 @@
       <div class="row">
         <label>
           Started on
-          <input type="date" bind:value={dateStarted} disabled={saving} />
+          <input type="date" bind:value={dateStarted} max={today} disabled={saving} />
         </label>
         <label>
           Completed on
-          <input type="date" bind:value={dateCompleted} disabled={saving} />
+          <input type="date" bind:value={dateCompleted} max={today} disabled={saving} />
         </label>
       </div>
 
