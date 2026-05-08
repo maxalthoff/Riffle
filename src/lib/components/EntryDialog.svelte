@@ -17,6 +17,8 @@
   let creator = $state('');
   let genre = $state('');
   let detailsState = $state<Record<string, string>>({});
+  let dateStarted = $state('');
+  let dateCompleted = $state('');
 
   let creatorLabel = $derived(CREATOR_LABEL[category] ?? 'Creator');
   let dialogTitle = $derived(editing ? `Edit ${entry!.title}` : 'Add Entry');
@@ -29,6 +31,8 @@
       year = e.year?.toString() ?? '';
       creator = e.creator ?? '';
       genre = e.genre ?? '';
+      dateStarted = e.date_started ? e.date_started.substring(0, 10) : '';
+      dateCompleted = e.date_completed ? e.date_completed.substring(0, 10) : '';
       resetDetails(e.details);
     } else {
       title = '';
@@ -38,6 +42,8 @@
       creator = '';
       genre = '';
       detailsState = {};
+      dateStarted = '';
+      dateCompleted = '';
     }
     error = '';
   }
@@ -80,17 +86,19 @@
         }
       }
       const detailsJson = Object.keys(detailsObj).length > 0 ? JSON.stringify(detailsObj) : null;
+      const ds = dateStarted || null;
+      const dc = dateCompleted || null;
 
       if (editing) {
         await db.execute(
-          'UPDATE core_media SET title = $1, media_category = $2, status = $3, year = $4, creator = $5, genre = $6, details = $7 WHERE id = $8',
-          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, genre.trim() || null, detailsJson, entry!.id]
+          'UPDATE core_media SET title = $1, media_category = $2, status = $3, year = $4, creator = $5, genre = $6, details = $7, date_started = $8, date_completed = $9 WHERE id = $10',
+          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, genre.trim() || null, detailsJson, ds, dc, entry!.id]
         );
       } else {
         await db.execute(
-          `INSERT INTO core_media (title, media_category, status, year, creator, genre, details)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, genre.trim() || null, detailsJson]
+          `INSERT INTO core_media (title, media_category, status, year, creator, genre, details, date_started, date_completed)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, genre.trim() || null, detailsJson, ds, dc]
         );
       }
       onClose();
@@ -151,6 +159,17 @@
         </label>
       </div>
 
+      <div class="row">
+        <label>
+          Started on
+          <input type="date" bind:value={dateStarted} disabled={saving} />
+        </label>
+        <label>
+          Completed on
+          <input type="date" bind:value={dateCompleted} disabled={saving} />
+        </label>
+      </div>
+
       {#if CATEGORY_DETAILS[category]}
         <fieldset>
           <legend>{category} Details</legend>
@@ -158,11 +177,20 @@
             {#each CATEGORY_DETAILS[category] as field}
               <label>
                 {field.label}
-                <input
-                  type={field.type === 'number' ? 'number' : 'text'}
-                  bind:value={detailsState[field.key]}
-                  disabled={saving}
-                />
+                {#if field.type === 'select'}
+                  <select bind:value={detailsState[field.key]} disabled={saving}>
+                    <option value="">—</option>
+                    {#each field.options ?? [] as opt}
+                      <option value={opt}>{opt}</option>
+                    {/each}
+                  </select>
+                {:else}
+                  <input
+                    type={field.type === 'number' ? 'number' : 'text'}
+                    bind:value={detailsState[field.key]}
+                    disabled={saving}
+                  />
+                {/if}
               </label>
             {/each}
           </div>
