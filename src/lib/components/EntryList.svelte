@@ -211,7 +211,7 @@
 
 <style>
   .empty {
-    color: #666;
+    color: var(--text-secondary);
     margin-top: 1rem;
     font-size: 0.95rem;
   }
@@ -221,14 +221,14 @@
     margin-top: 0.75rem;
   }
   thead th {
-    background: #f9fafb;
-    border-bottom: 2px solid #e5e7eb;
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
     padding: 0.5rem 0.6rem;
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
-    color: #6b7280;
+    color: var(--text-secondary);
   }
   th, td {
     text-align: left;
@@ -240,20 +240,20 @@
     user-select: none;
   }
   th.sortable:hover {
-    color: #374151;
+    color: var(--text);
   }
   tbody tr {
     transition: background 0.12s;
   }
   tbody tr:hover {
-    background: #f9fafb;
+    background: var(--surface);
   }
   .title-cell {
     font-weight: 500;
-    color: #111827;
+    color: var(--text);
   }
   .detail-cell {
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 0.9rem;
   }
   .date-cell {
@@ -271,7 +271,7 @@
     white-space: nowrap;
   }
   .done {
-    color: #22c55e;
+    color: var(--success);
     font-weight: bold;
     font-size: 1rem;
     display: inline-block;
@@ -289,30 +289,30 @@
     font-size: 0.95rem;
     padding: 4px 6px;
     border-radius: 4px;
-    color: #6b7280;
+    color: var(--text-secondary);
     transition: background 0.1s, color 0.1s;
     line-height: 1;
   }
   .icon-btn:hover {
-    background: #f3f4f6;
-    color: #374151;
+    background: var(--surface);
+    color: var(--text);
   }
   .icon-btn:disabled {
     opacity: 0.4;
     cursor: default;
   }
   .complete-btn {
-    color: #22c55e;
+    color: var(--success);
   }
   .complete-btn:hover {
     background: #f0fdf4;
-    color: #16a34a;
+    color: var(--success-hover);
   }
   .delete-btn:hover {
-    color: #ef4444;
+    color: var(--danger);
   }
   .delete-btn.confirm {
-    color: #ef4444;
+    color: var(--danger);
     font-weight: 600;
   }
   .filters {
@@ -336,7 +336,7 @@
   .filters input:focus,
   .filters select:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59,130,246,0.15);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 15%, transparent);
   }
 </style>

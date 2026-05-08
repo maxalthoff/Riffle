@@ -52,7 +52,7 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 2.5rem 3rem;
-    font-family: system-ui, sans-serif;
+    font-family: var(--font);
   }
 
   h1 {
@@ -65,17 +65,17 @@
     padding: 0.4rem 0.8rem;
     font-size: 0.95rem;
     cursor: pointer;
-    border: 1px solid #396cd8;
-    background: #396cd8;
+    border: 1px solid var(--primary);
+    background: var(--primary);
     color: #fff;
     border-radius: 4px;
   }
 
   .add-btn:hover {
-    background: #2d5abf;
+    background: var(--primary-hover);
   }
 
   .error {
-    color: #c00;
+    color: var(--danger);
   }
 </style>

@@ -257,10 +257,10 @@
     font-size: 1.2rem;
     cursor: pointer;
     padding: 0.2rem 0.4rem;
-    color: #666;
+    color: var(--text-secondary);
   }
   .close:hover {
-    color: #000;
+    color: var(--text);
   }
   form {
     display: flex;
@@ -273,19 +273,19 @@
     gap: 0.25rem;
     font-size: 0.85rem;
     font-weight: 500;
-    color: #333;
+    color: var(--text);
     flex: 1;
   }
   input, select {
     padding: 0.4rem 0.6rem;
     font-size: 0.95rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border);
     border-radius: 4px;
   }
   input:focus, select:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 12%, transparent);
   }
   .row {
     display: flex;
@@ -293,21 +293,21 @@
     flex-wrap: wrap;
   }
   fieldset {
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
     border-radius: 4px;
     padding: 0.75rem;
   }
   legend {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #555;
+    color: var(--text-secondary);
   }
   .date-section {
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid var(--surface);
     padding-top: 0.75rem;
   }
   .error {
-    color: #c00;
+    color: var(--danger);
     margin: 0;
     font-size: 0.85rem;
   }
@@ -315,7 +315,7 @@
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid var(--surface);
     padding-top: 0.75rem;
     margin-top: 0.25rem;
   }
@@ -324,19 +324,18 @@
     font-size: 0.95rem;
     border-radius: 4px;
     cursor: pointer;
-    border: 1px solid #ccc;
-    background: #fff;
+    border: 1px solid var(--border);
   }
   .actions button[type="submit"] {
-    background: #396cd8;
+    background: var(--primary);
     color: #fff;
-    border-color: #396cd8;
+    border-color: var(--primary);
   }
   .actions button[type="submit"]:disabled {
     opacity: 0.6;
     cursor: default;
   }
   .actions button[type="button"]:hover {
-    background: #f0f0f0;
+    background: var(--surface);
   }
 </style>
