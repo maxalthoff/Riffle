@@ -14,6 +14,26 @@
   let filterCategory = $state('');
   let filterStatus = $state('');
 
+  const STATUS_COLORS: Record<string, string> = {
+    'Want to Consume': '#3b82f6',
+    'In Progress': '#f59e0b',
+    'Completed': '#22c55e',
+    'On Hold': '#6b7280',
+    'Dropped': '#ef4444',
+  };
+
+  const CATEGORY_ICON: Record<string, string> = {
+    Movie: '🎬', Book: '📖', Show: '📺', Game: '🎮', Podcast: '🎙️',
+  };
+
+  function formatDate(raw: string | null): string {
+    if (!raw) return '—';
+    const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return raw;
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${months[+m[2] - 1]} ${+m[3]}`;
+  }
+
   let detailColumns = $derived<DetailField[]>(
     filterCategory && CATEGORY_DETAILS[filterCategory] ? CATEGORY_DETAILS[filterCategory] : []
   );
@@ -148,24 +168,38 @@
     <tbody>
       {#each sortedEntries as entry (entry.id)}
         <tr>
-          <td>{entry.title}</td>
-          <td>{entry.media_category ?? '—'}</td>
-          <td>{entry.status ?? '—'}</td>
-          {#each detailColumns as col}
-            <td>{parseDetails(entry.details)[col.key] ?? '—'}</td>
-          {/each}
-          <td>{entry.date_added}</td>
+          <td class="title-cell">{entry.title}</td>
+          <td>{CATEGORY_ICON[entry.media_category ?? ''] ?? ''} {entry.media_category ?? '—'}</td>
           <td>
+            {#if entry.status}
+              <span class="badge" style="background: {STATUS_COLORS[entry.status] ?? '#6b7280'}">
+                {entry.status}
+              </span>
+            {:else}
+              —
+            {/if}
+          </td>
+          {#each detailColumns as col}
+            <td class="detail-cell">{parseDetails(entry.details)[col.key] ?? '—'}</td>
+          {/each}
+          <td class="date-cell">{formatDate(entry.date_added)}</td>
+          <td class="actions-cell">
             {#if entry.status !== 'Completed'}
-              <button onclick={() => markComplete(entry.id)} disabled={saving}>
-                {saving ? '...' : 'Mark Complete'}
+              <button class="icon-btn complete-btn" onclick={() => markComplete(entry.id)} disabled={saving} title="Mark Complete">
+                {saving ? '...' : '✓'}
               </button>
             {:else}
               <span class="done">✓</span>
             {/if}
-            <button onclick={() => onEdit(entry)} disabled={saving}>Edit</button>
-            <button onclick={() => requestDelete(entry.id)} disabled={saving}>
-              {confirmingId === entry.id ? 'Confirm?' : 'Delete'}
+            <button class="icon-btn" onclick={() => onEdit(entry)} disabled={saving} title="Edit">✎</button>
+            <button
+              class="icon-btn delete-btn"
+              class:confirm={confirmingId === entry.id}
+              onclick={() => requestDelete(entry.id)}
+              disabled={saving}
+              title={confirmingId === entry.id ? 'Confirm delete' : 'Delete'}
+            >
+              {confirmingId === entry.id ? 'Delete?' : '✕'}
             </button>
           </td>
         </tr>
@@ -179,30 +213,107 @@
   .empty {
     color: #666;
     margin-top: 1rem;
+    font-size: 0.95rem;
   }
   table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 1rem;
+    margin-top: 0.75rem;
+  }
+  thead th {
+    background: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+    padding: 0.5rem 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #6b7280;
   }
   th, td {
     text-align: left;
-    padding: 0.4rem 0.6rem;
-    border-bottom: 1px solid #ddd;
-  }
-  th {
-    font-weight: 600;
+    padding: 0.5rem 0.6rem;
+    border-bottom: 1px solid #f0f0f0;
   }
   th.sortable {
     cursor: pointer;
     user-select: none;
   }
   th.sortable:hover {
-    background: #eee;
+    color: #374151;
+  }
+  tbody tr {
+    transition: background 0.12s;
+  }
+  tbody tr:hover {
+    background: #f9fafb;
+  }
+  .title-cell {
+    font-weight: 500;
+    color: #111827;
+  }
+  .detail-cell {
+    color: #6b7280;
+    font-size: 0.9rem;
+  }
+  .date-cell {
+    color: #9ca3af;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #fff;
+    white-space: nowrap;
   }
   .done {
-    color: #090;
+    color: #22c55e;
     font-weight: bold;
+    font-size: 1rem;
+    display: inline-block;
+    width: 28px;
+    text-align: center;
+  }
+  .actions-cell {
+    white-space: nowrap;
+    text-align: right;
+  }
+  .icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    padding: 4px 6px;
+    border-radius: 4px;
+    color: #6b7280;
+    transition: background 0.1s, color 0.1s;
+    line-height: 1;
+  }
+  .icon-btn:hover {
+    background: #f3f4f6;
+    color: #374151;
+  }
+  .icon-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .complete-btn {
+    color: #22c55e;
+  }
+  .complete-btn:hover {
+    background: #f0fdf4;
+    color: #16a34a;
+  }
+  .delete-btn:hover {
+    color: #ef4444;
+  }
+  .delete-btn.confirm {
+    color: #ef4444;
+    font-weight: 600;
   }
   .filters {
     display: flex;
@@ -214,9 +325,18 @@
   .filters select {
     padding: 0.35rem 0.5rem;
     font-size: 0.9rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: #fff;
   }
   .filters input {
     flex: 1;
     min-width: 160px;
+  }
+  .filters input:focus,
+  .filters select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59,130,246,0.15);
   }
 </style>
