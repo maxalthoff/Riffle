@@ -49,9 +49,9 @@
 
 <style>
   main {
-    max-width: 640px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 2.5rem 3rem;
     font-family: system-ui, sans-serif;
   }
 
