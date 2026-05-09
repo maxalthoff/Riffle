@@ -150,6 +150,22 @@
         <input type="text" bind:value={title} required disabled={saving} />
       </label>
 
+      <div class="cover-section">
+        {#if imageUrl}
+          <div class="cover-dropzone has-image">
+            <img src={imageUrl} alt="Cover" class="cover-preview" />
+            <span class="cover-status">Cover added</span>
+            <button type="button" class="cover-remove" onclick={removeCover} disabled={saving}>✕</button>
+          </div>
+        {:else}
+          <div class="cover-dropzone" onclick={() => fileInput?.click()}>
+            <span class="cover-icon">🖼</span>
+            <span class="cover-label">Add Cover</span>
+          </div>
+        {/if}
+        <input type="file" accept="image/*" bind:this={fileInput} hidden onchange={handleCoverSelect} />
+      </div>
+
       <div class="row">
         <label>
           Category
@@ -193,16 +209,6 @@
           Completed on
           <input type="date" bind:value={dateCompleted} max={today} disabled={saving} />
         </label>
-      </div>
-
-      <div class="cover-section">
-        {#if imageUrl}
-          <img src={imageUrl} alt="Cover" class="cover-preview" />
-          <button type="button" onclick={removeCover} disabled={saving}>Remove Cover</button>
-        {:else}
-          <button type="button" onclick={() => fileInput?.click()} disabled={saving}>Add Cover</button>
-        {/if}
-        <input type="file" accept="image/*" bind:this={fileInput} hidden onchange={handleCoverSelect} />
       </div>
 
       {#if CATEGORY_DETAILS[category]}
@@ -349,18 +355,65 @@
     font-size: 0.85rem;
   }
   .cover-section {
+    margin-bottom: 0.25rem;
+  }
+  .cover-dropzone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    text-align: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+  }
+  .cover-dropzone:hover {
+    border-color: var(--primary);
+    background: var(--surface);
+  }
+  .cover-dropzone.has-image {
+    border: 2px solid var(--border);
+    padding: 0.5rem 0.75rem;
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    border-top: 1px solid var(--border);
-    padding-top: 0.75rem;
+    text-align: left;
+  }
+  .cover-icon {
+    font-size: 1.5rem;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  .cover-label {
+    font-size: 0.85rem;
+    font-weight: 500;
   }
   .cover-preview {
-    width: 80px;
-    height: 120px;
+    width: 48px;
+    height: 64px;
     object-fit: cover;
     border-radius: 4px;
     border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .cover-status {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    flex: 1;
+  }
+  .cover-remove {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.2rem 0.45rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1;
+  }
+  .cover-remove:hover {
+    color: var(--danger);
+    border-color: var(--danger);
   }
   .actions {
     display: flex;
