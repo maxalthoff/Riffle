@@ -13,3 +13,15 @@ export const CREATOR_LABEL: Record<string, string> = {
   Game: 'Developer',
   Podcast: 'Host',
 };
+
+export function statusDisplayLabel(status: string, category?: string | null): string {
+  if (status !== 'Want to Consume' || !category) return status;
+  const map: Record<string, string> = {
+    Movie: 'Want to Watch',
+    Show: 'Want to Watch',
+    Book: 'Want to Read',
+    Game: 'Want to Play',
+    Podcast: 'Want to Listen',
+  };
+  return map[category] ?? status;
+}

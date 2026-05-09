@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { fade, scale } from 'svelte/transition';
   import { getDb, type MediaEntry } from '$lib/db';
-  import { CATEGORIES, STATUSES, CREATOR_LABEL } from '$lib/types';
+  import { CATEGORIES, STATUSES, CREATOR_LABEL, statusDisplayLabel } from '$lib/types';
   import { CATEGORY_DETAILS } from '$lib/schema';
 
   let { entry, onClose, enabledCategories }: { entry: MediaEntry | null; onClose: () => void; enabledCategories: Set<string> } = $props();
@@ -163,7 +163,7 @@
           Status
           <select bind:value={status} disabled={saving}>
             {#each STATUSES as s}
-              <option value={s}>{s}</option>
+              <option value={s}>{statusDisplayLabel(s, category)}</option>
             {/each}
           </select>
         </label>

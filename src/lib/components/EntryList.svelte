@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getDb, type MediaEntry } from '$lib/db';
-  import { CATEGORIES, STATUSES } from '$lib/types';
+  import { CATEGORIES, STATUSES, statusDisplayLabel } from '$lib/types';
   import { CATEGORY_DETAILS, parseDetails, type DetailField } from '$lib/schema';
 
   let { entries, onEntriesChanged, onEdit, enabledCategories, onCategoryToggled }: { entries: MediaEntry[]; onEntriesChanged: () => void; onEdit: (entry: MediaEntry) => void; enabledCategories: Set<string>; onCategoryToggled: (category: string, enabled: boolean) => void } = $props();
@@ -219,7 +219,7 @@
           <td>
             {#if entry.status}
               <span class="badge" style="background: {STATUS_COLORS[entry.status] ?? '#6b7280'}">
-                {entry.status}
+                {statusDisplayLabel(entry.status, entry.media_category)}
               </span>
             {:else}
               —
