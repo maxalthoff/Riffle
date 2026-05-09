@@ -28,8 +28,9 @@ export const CATEGORY_DETAILS: Record<string, DetailField[]> = {
   ],
   Podcast: [
     { key: 'episodes',  label: 'Episodes',  type: 'number' },
+    { key: 'creator',   label: 'Host(s)',   type: 'text', fromEntry: true },
     { key: 'frequency', label: 'Frequency', type: 'select', options: ['Daily', 'Weekly', 'Biweekly', 'Monthly', 'Seasonal', 'Irregular'] },
-    { key: 'website',   label: 'Website',   type: 'text'   },
+    { key: 'status',    label: 'Status',    type: 'select', options: ['Ongoing', 'Cancelled', 'Finished'] },
   ],
 };
 
