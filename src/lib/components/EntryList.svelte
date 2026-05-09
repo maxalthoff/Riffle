@@ -16,6 +16,7 @@
   let searchQuery = $state('');
   let filterCategory = $state('');
   let filterStatus = $state('');
+  let wasSingle = false;
 
   const STATUS_COLORS: Record<string, string> = {
     'Want to Consume': '#3b82f6',
@@ -48,6 +49,17 @@
   function handleManageOverlay() {
     showManage = false;
   }
+
+  $effect(() => {
+    const n = enabledCategories.size;
+    if (n === 1 && !wasSingle) {
+      wasSingle = true;
+      filterCategory = [...enabledCategories][0];
+    } else if (n > 1) {
+      if (wasSingle) filterCategory = '';
+      wasSingle = false;
+    }
+  });
 
   let detailColumns = $derived<DetailField[]>(
     filterCategory && CATEGORY_DETAILS[filterCategory] ? CATEGORY_DETAILS[filterCategory] : []
