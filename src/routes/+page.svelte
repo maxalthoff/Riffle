@@ -13,8 +13,13 @@
   let editingEntry = $state<MediaEntry | null | undefined>(undefined);
   let enabledCategories = $state<Set<string>>(new Set(CATEGORIES));
 
-  let totalCount = $derived(entries.length);
-  let completedCount = $derived(entries.filter(e => e.status === 'Completed').length);
+  let enabledEntries = $derived(entries.filter(e => {
+    const cat = e.media_category;
+    return !cat || enabledCategories.has(cat);
+  }));
+
+  let totalCount = $derived(enabledEntries.length);
+  let completedCount = $derived(enabledEntries.filter(e => e.status === 'Completed').length);
 
   async function loadEntries() {
     try {
