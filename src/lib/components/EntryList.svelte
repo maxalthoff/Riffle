@@ -41,6 +41,14 @@
     try { const p = JSON.parse(raw); return Array.isArray(p) ? p : []; } catch { return []; }
   }
 
+  function entryMatches(entry: MediaEntry, query: string): boolean {
+    const q = query.toLowerCase();
+    if (entry.title.toLowerCase().includes(q)) return true;
+    const tags = parseTags(entry.tags);
+    if (tags.some(t => t.includes(q))) return true;
+    return false;
+  }
+
   function isLastEnabled(cat: string): boolean {
     return enabledCategories.size === 1 && enabledCategories.has(cat);
   }
@@ -75,7 +83,7 @@
   const filteredEntries = $derived(entries.filter(e => {
     const cat = e.media_category;
     if (cat && !enabledCategories.has(cat)) return false;
-    const matchesSearch = !searchQuery || e.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = !searchQuery || entryMatches(e, searchQuery);
     const matchesCategory = !filterCategory || e.media_category === filterCategory;
     const matchesStatus = !filterStatus || e.status === filterStatus;
     return matchesSearch && matchesCategory && matchesStatus;
