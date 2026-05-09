@@ -25,6 +25,7 @@
         --input-bg: #ffffff;
         --zebra: #f0f0f0;
         --hover-bg: #e5e5e5;
+        --overlay: rgba(0, 0, 0, 0.35);
       }
 
       [data-theme="dark"] {
@@ -39,6 +40,7 @@
         --input-bg: #2e2e2e;
         --zebra: #2e2e2e;
         --hover-bg: #383838;
+        --overlay: rgba(0, 0, 0, 0.6);
       }
 
       body {
@@ -49,8 +51,7 @@
       }
 
       [data-theme="dark"] input,
-      [data-theme="dark"] select,
-      [data-theme="dark"] button {
+      [data-theme="dark"] select {
         background: var(--input-bg);
         color: var(--text);
       }

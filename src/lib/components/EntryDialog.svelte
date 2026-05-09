@@ -250,14 +250,14 @@
   .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.35);
+    background: var(--overlay);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 100;
   }
   .dialog {
-    background: #fff;
+    background: var(--card);
     border-radius: var(--radius);
     padding: 1.75rem;
     width: 90%;
@@ -265,6 +265,8 @@
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    color: var(--text);
+    font-family: var(--font);
   }
   .header {
     display: flex;
@@ -283,9 +285,11 @@
     cursor: pointer;
     padding: 0.2rem 0.4rem;
     color: var(--text-secondary);
+    border-radius: 4px;
   }
   .close:hover {
     color: var(--text);
+    background: var(--surface);
   }
   form {
     display: flex;
@@ -306,8 +310,13 @@
   input, select {
     padding: 0.4rem 0.6rem;
     font-size: 0.95rem;
-    border: 1px solid var(--border);
+    border: 1px solid var(--input-border);
     border-radius: var(--radius);
+    background: var(--input-bg);
+    color: var(--text);
+  }
+  input::placeholder {
+    color: var(--text-secondary);
   }
   input:focus, select:focus {
     outline: none;
@@ -321,8 +330,9 @@
   }
   fieldset {
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius);
     padding: 0.75rem;
+    background: var(--surface);
   }
   legend {
     font-size: 0.85rem;
@@ -330,7 +340,7 @@
     color: var(--text-secondary);
   }
   .date-section {
-    border-top: 1px solid var(--surface);
+    border-top: 1px solid var(--border);
     padding-top: 0.75rem;
   }
   .error {
@@ -342,7 +352,7 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    border-top: 1px solid var(--surface);
+    border-top: 1px solid var(--border);
     padding-top: 0.75rem;
   }
   .cover-preview {
@@ -356,27 +366,33 @@
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;
-    border-top: 1px solid var(--surface);
+    border-top: 1px solid var(--border);
     padding-top: 0.75rem;
     margin-top: 0.25rem;
   }
   .actions button {
     padding: 0.4rem 1rem;
     font-size: 0.95rem;
-    border-radius: 4px;
+    border-radius: var(--radius);
     cursor: pointer;
     border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    transition: background 0.1s;
+  }
+  .actions button:hover {
+    background: var(--surface);
   }
   .actions button[type="submit"] {
     background: var(--primary);
     color: #fff;
     border-color: var(--primary);
   }
+  .actions button[type="submit"]:hover {
+    background: var(--primary-hover);
+  }
   .actions button[type="submit"]:disabled {
     opacity: 0.6;
     cursor: default;
-  }
-  .actions button[type="button"]:hover {
-    background: var(--surface);
   }
 </style>
