@@ -168,7 +168,12 @@
     <tbody>
       {#each sortedEntries as entry (entry.id)}
         <tr>
-          <td class="title-cell">{entry.title}</td>
+          <td class="title-cell">
+            {#if entry.image}
+              <img src={entry.image} alt="" class="cover-thumb" />
+            {/if}
+            {entry.title}
+          </td>
           <td>{CATEGORY_ICON[entry.media_category ?? ''] ?? ''} {entry.media_category ?? '—'}</td>
           <td>
             {#if entry.status}
@@ -249,8 +254,19 @@
     background: var(--surface);
   }
   .title-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-weight: 500;
     color: var(--text);
+  }
+  .cover-thumb {
+    width: 24px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 3px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
   }
   .detail-cell {
     color: var(--text-secondary);
