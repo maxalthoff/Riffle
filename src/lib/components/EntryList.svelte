@@ -305,13 +305,13 @@
   }
 
   thead th {
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border);
     padding: 0.45rem 0.6rem;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #9ca3af;
+    color: var(--text-secondary);
     user-select: none;
   }
 
@@ -332,16 +332,12 @@
     transition: background 0.12s;
   }
 
-  tbody tr:hover {
-    background: #f5f5f4;
-  }
-
   tbody tr:nth-child(even) {
-    background: #fafaf9;
+    background: var(--zebra);
   }
 
-  tbody tr:nth-child(even):hover {
-    background: #f5f5f4;
+  tbody tr:hover {
+    background: var(--hover-bg);
   }
 
   .title-cell {
@@ -368,7 +364,7 @@
   }
 
   .date-cell {
-    color: #9ca3af;
+    color: var(--text-secondary);
     font-size: 0.8rem;
     white-space: nowrap;
   }
@@ -388,7 +384,6 @@
     font-size: 0.75rem;
     border: 1px solid var(--border);
     border-radius: 4px;
-    background: #fff;
     color: var(--text);
   }
 
@@ -410,7 +405,7 @@
   }
 
   .icon-btn:hover {
-    background: #f0f0f0;
+    background: var(--hover-bg);
     color: var(--text);
   }
 
@@ -441,9 +436,9 @@
   .manage-btn {
     padding: 0.4rem 0.5rem;
     font-size: 0.85rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--input-border);
     border-radius: var(--radius);
-    background: #fff;
+    background: var(--input-bg);
     color: var(--text);
   }
 
@@ -453,7 +448,7 @@
   }
 
   .filters input::placeholder {
-    color: #9ca3af;
+    color: var(--text-secondary);
   }
 
   .filters input:focus,
@@ -487,7 +482,7 @@
     top: 100%;
     right: 0;
     margin-top: 4px;
-    background: #fff;
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 0.25rem;

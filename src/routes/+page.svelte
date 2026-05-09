@@ -12,6 +12,13 @@
   let dbError = $state('');
   let editingEntry = $state<MediaEntry | null | undefined>(undefined);
   let enabledCategories = $state<Set<string>>(new Set(CATEGORIES));
+  let isDark = $state(false);
+
+  function toggleTheme() {
+    isDark = !isDark;
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    localStorage.setItem('riffle-theme', isDark ? 'dark' : 'light');
+  }
 
   let enabledEntries = $derived(entries.filter(e => {
     const cat = e.media_category;
@@ -56,6 +63,10 @@
   }
 
   onMount(async () => {
+    if (localStorage.getItem('riffle-theme') === 'dark') {
+      isDark = true;
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
     await loadCategories();
     await loadEntries();
   });
@@ -65,13 +76,18 @@
   {#if dbError}
     <p class="error">Database error: {dbError}</p>
   {:else}
-    <div class="header">
-      <div>
-        <span class="app-name">Riffle</span>
-        <p class="stats">{totalCount} entries &middot; {completedCount} completed</p>
+      <div class="header">
+        <div>
+          <span class="app-name">Riffle</span>
+          <p class="stats">{totalCount} entries &middot; {completedCount} completed</p>
+        </div>
+        <div class="header-actions">
+          <button class="theme-btn" onclick={toggleTheme} title="Toggle dark mode">
+            {isDark ? '☀️' : '🌙'}
+          </button>
+          <button class="add-btn" onclick={() => editingEntry = null}>+ Add Entry</button>
+        </div>
       </div>
-      <button class="add-btn" onclick={() => editingEntry = null}>+ Add Entry</button>
-    </div>
     <EntryList {entries} {enabledCategories} onEntriesChanged={loadEntries} onEdit={(e) => editingEntry = e} onCategoryToggled={handleCategoryToggled} />
   {/if}
 </main>
@@ -120,6 +136,26 @@
 
   .add-btn:hover {
     background: var(--primary-hover);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .theme-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.4rem 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .theme-btn:hover {
+    background: var(--surface);
   }
 
   .error {
