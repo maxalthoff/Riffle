@@ -53,6 +53,12 @@ pub fn run() {
             );",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 7,
+            description: "rename Want to Consume to Want to Start",
+            sql: "UPDATE core_media SET status = 'Want to Start' WHERE status = 'Want to Consume';",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

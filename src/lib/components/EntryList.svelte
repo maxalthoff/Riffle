@@ -20,7 +20,7 @@
   let wasSingle = false;
 
   const STATUS_COLORS: Record<string, string> = {
-    'Want to Consume': '#3b82f6',
+    'Want to Start': '#3b82f6',
     'In Progress': '#f59e0b',
     'Completed': '#22c55e',
     'On Hold': '#6b7280',
