@@ -3,6 +3,7 @@ export interface DetailField {
   label: string;
   type: 'text' | 'number' | 'select';
   options?: string[];
+  fromEntry?: boolean;
 }
 
 export const CATEGORY_DETAILS: Record<string, DetailField[]> = {
@@ -13,7 +14,7 @@ export const CATEGORY_DETAILS: Record<string, DetailField[]> = {
   ],
   Book: [
     { key: 'pages',    label: 'Pages',   type: 'number' },
-    { key: 'language', label: 'Language', type: 'text'   },
+    { key: 'creator',  label: 'Author',  type: 'text', fromEntry: true },
     { key: 'format',   label: 'Format',   type: 'select', options: ['Hardcover', 'Paperback', 'Audiobook', 'Ebook'] },
   ],
   Show: [

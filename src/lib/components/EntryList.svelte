@@ -87,8 +87,15 @@
         cmp = (a.date_added ?? '').localeCompare(b.date_added ?? '');
         break;
       default: {
-        const aVal = parseDetails(a.details)[sortBy];
-        const bVal = parseDetails(b.details)[sortBy];
+        const col = detailColumns.find(d => d.key === sortBy);
+        let aVal, bVal;
+        if (col?.fromEntry) {
+          aVal = (a as any)[sortBy];
+          bVal = (b as any)[sortBy];
+        } else {
+          aVal = parseDetails(a.details)[sortBy];
+          bVal = parseDetails(b.details)[sortBy];
+        }
         if (aVal == null && bVal == null) cmp = 0;
         else if (aVal == null) cmp = 1;
         else if (bVal == null) cmp = -1;
@@ -269,7 +276,7 @@
               {/if}
             </td>
             {#each detailColumns as col}
-              <td class="detail-cell">{parseDetails(entry.details)[col.key] ?? '—'}</td>
+              <td class="detail-cell">{(col.fromEntry ? (entry as any)[col.key] : parseDetails(entry.details)[col.key]) ?? '—'}</td>
             {/each}
             <td class="date-cell">{formatDate(entry.date_added)}</td>
             <td class="actions-cell">
