@@ -13,6 +13,9 @@
   let editingEntry = $state<MediaEntry | null | undefined>(undefined);
   let enabledCategories = $state<Set<string>>(new Set(CATEGORIES));
 
+  let totalCount = $derived(entries.length);
+  let completedCount = $derived(entries.filter(e => e.status === 'Completed').length);
+
   async function loadEntries() {
     try {
       const db = await getDb();
@@ -57,7 +60,13 @@
   {#if dbError}
     <p class="error">Database error: {dbError}</p>
   {:else}
-    <button class="add-btn" onclick={() => editingEntry = null}>+ Add Entry</button>
+    <div class="header">
+      <div>
+        <span class="app-name">Riffle</span>
+        <p class="stats">{totalCount} entries &middot; {completedCount} completed</p>
+      </div>
+      <button class="add-btn" onclick={() => editingEntry = null}>+ Add Entry</button>
+    </div>
     <EntryList {entries} {enabledCategories} onEntriesChanged={loadEntries} onEdit={(e) => editingEntry = e} onCategoryToggled={handleCategoryToggled} />
   {/if}
 </main>
@@ -70,19 +79,38 @@
   main {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2.5rem 3rem;
+    padding: 2rem 2.5rem;
     font-family: var(--font);
   }
 
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+  }
+
+  .app-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .stats {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0.15rem 0 0 0;
+  }
+
   .add-btn {
-    margin-bottom: 0.75rem;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.95rem;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.9rem;
     cursor: pointer;
-    border: 1px solid var(--primary);
+    border: none;
     background: var(--primary);
     color: #fff;
-    border-radius: 4px;
+    border-radius: var(--radius);
+    font-weight: 500;
   }
 
   .add-btn:hover {

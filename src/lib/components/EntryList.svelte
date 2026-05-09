@@ -137,170 +137,196 @@
   <div class="manage-overlay" onclick={handleManageOverlay}></div>
 {/if}
 
-{#if entries.length === 0}
-  <p class="empty">No entries yet. Add your first movie or book above.</p>
-{:else}
-  <div class="filters">
-    <input
-      type="search"
-      bind:value={searchQuery}
-      placeholder="Search by title..."
-    />
-    <select bind:value={filterCategory}>
-      <option value="">All Categories</option>
-      {#each CATEGORIES.filter(c => enabledCategories.has(c)) as c}
-        <option value={c}>{CATEGORY_ICON[c] ?? ''} {c}</option>
-      {/each}
-    </select>
-    <select bind:value={filterStatus}>
-      <option value="">All Statuses</option>
-      {#each STATUSES as s}
-        <option value={s}>{s}</option>
-      {/each}
-    </select>
-    <div class="manage-wrapper">
-      <button class="manage-btn" onclick={toggleManage}>Manage ▾</button>
-      {#if showManage}
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div class="manage-panel" onclick={(e) => e.stopPropagation()}>
-          {#each CATEGORIES as cat}
-            <label>
-              <input
-                type="checkbox"
-                checked={enabledCategories.has(cat)}
-                disabled={isLastEnabled(cat)}
-                onchange={() => onCategoryToggled(cat, !enabledCategories.has(cat))}
-              />
-              {CATEGORY_ICON[cat] ?? ''} {cat}
-            </label>
-          {/each}
-        </div>
-      {/if}
-    </div>
-  </div>
-
-  {#if filteredEntries.length === 0}
-    <p class="empty">No entries match your filters.</p>
+<div class="card">
+  {#if entries.length === 0}
+    <p class="empty">No entries yet. Add your first movie or book above.</p>
   {:else}
-  <table>
-    <thead>
-      <tr>
-        <th class="sortable" onclick={() => toggleSort('title')}>
-          Title {sortBy === 'title' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
-        </th>
-        <th class="sortable" onclick={() => toggleSort('category')}>
-          Category {sortBy === 'category' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
-        </th>
-        <th class="sortable" onclick={() => toggleSort('status')}>
-          Status {sortBy === 'status' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
-        </th>
-        {#each detailColumns as col}
-          <th class="sortable" onclick={() => toggleSort(col.key)}>
-            {col.label} {sortBy === col.key ? (sortDir === 'asc' ? '↑' : '↓') : ''}
-          </th>
+    <div class="filters">
+      <input
+        type="search"
+        bind:value={searchQuery}
+        placeholder="Search by title..."
+      />
+      <select bind:value={filterCategory}>
+        <option value="">All Categories</option>
+        {#each CATEGORIES.filter(c => enabledCategories.has(c)) as c}
+          <option value={c}>{CATEGORY_ICON[c] ?? ''} {c}</option>
         {/each}
-        <th class="sortable" onclick={() => toggleSort('date')}>
-          Added {sortBy === 'date' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
-        </th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {#each sortedEntries as entry (entry.id)}
+      </select>
+      <select bind:value={filterStatus}>
+        <option value="">All Statuses</option>
+        {#each STATUSES as s}
+          <option value={s}>{s}</option>
+        {/each}
+      </select>
+      <div class="manage-wrapper">
+        <button class="manage-btn" onclick={toggleManage}>Manage</button>
+        {#if showManage}
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div class="manage-panel" onclick={(e) => e.stopPropagation()}>
+            {#each CATEGORIES as cat}
+              <label>
+                <input
+                  type="checkbox"
+                  checked={enabledCategories.has(cat)}
+                  disabled={isLastEnabled(cat)}
+                  onchange={() => onCategoryToggled(cat, !enabledCategories.has(cat))}
+                />
+                {CATEGORY_ICON[cat] ?? ''} {cat}
+              </label>
+            {/each}
+          </div>
+        {/if}
+      </div>
+    </div>
+
+    {#if filteredEntries.length === 0}
+      <p class="empty">No entries match your filters.</p>
+    {:else}
+    <table>
+      <thead>
         <tr>
-          <td class="title-cell">
-            {#if entry.image}
-              <img src={entry.image} alt="" class="cover-thumb" />
-            {/if}
-            {entry.title}
-          </td>
-          <td>{CATEGORY_ICON[entry.media_category ?? ''] ?? ''} {entry.media_category ?? '—'}</td>
-          <td>
-            {#if entry.status}
-              <span class="badge" style="background: {STATUS_COLORS[entry.status] ?? '#6b7280'}">
-                {statusDisplayLabel(entry.status, entry.media_category)}
-              </span>
-            {:else}
-              —
-            {/if}
-          </td>
+          <th class="sortable" onclick={() => toggleSort('title')}>
+            Title {sortBy === 'title' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+          </th>
+          <th class="sortable" onclick={() => toggleSort('category')}>
+            Category {sortBy === 'category' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+          </th>
+          <th class="sortable" onclick={() => toggleSort('status')}>
+            Status {sortBy === 'status' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+          </th>
           {#each detailColumns as col}
-            <td class="detail-cell">{parseDetails(entry.details)[col.key] ?? '—'}</td>
+            <th class="sortable" onclick={() => toggleSort(col.key)}>
+              {col.label} {sortBy === col.key ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+            </th>
           {/each}
-          <td class="date-cell">{formatDate(entry.date_added)}</td>
-          <td class="actions-cell">
-            {#if entry.status !== 'Completed'}
-              <button class="icon-btn complete-btn" onclick={() => markComplete(entry.id)} disabled={saving} title="Mark Complete">
-                {saving ? '...' : '✓'}
-              </button>
-            {:else}
-              <span class="done">✓</span>
-            {/if}
-            <button class="icon-btn" onclick={() => onEdit(entry)} disabled={saving} title="Edit">✎</button>
-            <button
-              class="icon-btn delete-btn"
-              class:confirm={confirmingId === entry.id}
-              onclick={() => requestDelete(entry.id)}
-              disabled={saving}
-              title={confirmingId === entry.id ? 'Confirm delete' : 'Delete'}
-            >
-              {confirmingId === entry.id ? 'Delete?' : '✕'}
-            </button>
-          </td>
+          <th class="sortable" onclick={() => toggleSort('date')}>
+            Added {sortBy === 'date' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+          </th>
+          <th></th>
         </tr>
-      {/each}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {#each sortedEntries as entry (entry.id)}
+          <tr>
+            <td class="title-cell">
+              {#if entry.image}
+                <img src={entry.image} alt="" class="cover-thumb" />
+              {/if}
+              {entry.title}
+            </td>
+            <td>{CATEGORY_ICON[entry.media_category ?? ''] ?? ''} {entry.media_category ?? '—'}</td>
+            <td>
+              {#if entry.status}
+                <span class="badge" style="background: {STATUS_COLORS[entry.status] ?? '#6b7280'}">
+                  {statusDisplayLabel(entry.status, entry.media_category)}
+                </span>
+              {:else}
+                —
+              {/if}
+            </td>
+            {#each detailColumns as col}
+              <td class="detail-cell">{parseDetails(entry.details)[col.key] ?? '—'}</td>
+            {/each}
+            <td class="date-cell">{formatDate(entry.date_added)}</td>
+            <td class="actions-cell">
+              {#if entry.status !== 'Completed'}
+                <button class="icon-btn complete-btn" onclick={() => markComplete(entry.id)} disabled={saving} title="Mark Complete">
+                  {saving ? '...' : '✓'}
+                </button>
+              {:else}
+                <span class="done">✓</span>
+              {/if}
+              <button class="icon-btn" onclick={() => onEdit(entry)} disabled={saving} title="Edit">✎</button>
+              <button
+                class="icon-btn delete-btn"
+                class:confirm={confirmingId === entry.id}
+                onclick={() => requestDelete(entry.id)}
+                disabled={saving}
+                title={confirmingId === entry.id ? 'Confirm delete' : 'Delete'}
+              >
+                {confirmingId === entry.id ? 'Delete?' : '✕'}
+              </button>
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+    {/if}
   {/if}
-{/if}
+</div>
 
 <style>
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.25rem 1.5rem;
+  }
+
   .empty {
     color: var(--text-secondary);
-    margin-top: 1rem;
-    font-size: 0.95rem;
+    text-align: center;
+    padding: 2rem 0;
+    margin: 0;
+    font-size: 0.9rem;
   }
+
   table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 0.75rem;
   }
+
   thead th {
-    background: var(--surface);
-    border-bottom: 2px solid var(--border);
-    padding: 0.5rem 0.6rem;
-    font-size: 0.8rem;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--text-secondary);
-  }
-  th, td {
-    text-align: left;
-    padding: 0.5rem 0.6rem;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  th.sortable {
-    cursor: pointer;
+    letter-spacing: 0.04em;
+    color: #9ca3af;
     user-select: none;
   }
-  th.sortable:hover {
-    color: var(--text);
+
+  th.sortable {
+    cursor: pointer;
   }
+
+  th.sortable:hover {
+    color: var(--text-secondary);
+  }
+
+  th, td {
+    text-align: left;
+    padding: 0.45rem 0.6rem;
+  }
+
   tbody tr {
     transition: background 0.12s;
   }
+
   tbody tr:hover {
-    background: var(--surface);
+    background: #f5f5f4;
   }
+
+  tbody tr:nth-child(even) {
+    background: #fafaf9;
+  }
+
+  tbody tr:nth-child(even):hover {
+    background: #f5f5f4;
+  }
+
   .title-cell {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-weight: 500;
     color: var(--text);
+    font-size: 0.9rem;
   }
+
   .cover-thumb {
     width: 24px;
     height: 36px;
@@ -309,110 +335,136 @@
     flex-shrink: 0;
     border: 1px solid var(--border);
   }
+
   .detail-cell {
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
+
   .date-cell {
     color: #9ca3af;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     white-space: nowrap;
   }
+
   .badge {
     display: inline-block;
-    padding: 2px 10px;
+    padding: 2px 9px;
     border-radius: 999px;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-weight: 500;
     color: #fff;
     white-space: nowrap;
   }
+
   .done {
     color: var(--success);
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 0.95rem;
     display: inline-block;
     width: 28px;
     text-align: center;
   }
+
   .actions-cell {
     white-space: nowrap;
     text-align: right;
   }
+
   .icon-btn {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 0.95rem;
-    padding: 4px 6px;
+    font-size: 0.9rem;
+    padding: 4px 5px;
     border-radius: 4px;
     color: var(--text-secondary);
     transition: background 0.1s, color 0.1s;
     line-height: 1;
   }
+
   .icon-btn:hover {
-    background: var(--surface);
+    background: #f0f0f0;
     color: var(--text);
   }
+
   .icon-btn:disabled {
-    opacity: 0.4;
+    opacity: 0.35;
     cursor: default;
   }
+
   .complete-btn {
     color: var(--success);
   }
+
   .complete-btn:hover {
     background: #f0fdf4;
     color: var(--success-hover);
   }
+
   .delete-btn:hover {
     color: var(--danger);
   }
+
   .delete-btn.confirm {
     color: var(--danger);
     font-weight: 600;
   }
+
   .filters {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
     flex-wrap: wrap;
     align-items: center;
   }
+
   .filters input,
   .filters select,
   .manage-btn {
-    padding: 0.35rem 0.5rem;
-    font-size: 0.9rem;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.85rem;
     border: 1px solid #d1d5db;
-    border-radius: 4px;
+    border-radius: var(--radius);
     background: #fff;
+    color: var(--text);
   }
+
   .filters input {
     flex: 1;
-    min-width: 160px;
+    min-width: 140px;
   }
+
+  .filters input::placeholder {
+    color: #9ca3af;
+  }
+
   .filters input:focus,
   .filters select:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 15%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 12%, transparent);
   }
+
   .manage-btn {
     cursor: pointer;
     white-space: nowrap;
   }
+
   .manage-btn:hover {
     background: var(--surface);
   }
+
   .manage-wrapper {
     position: relative;
   }
+
   .manage-overlay {
     position: fixed;
     inset: 0;
     z-index: 5;
   }
+
   .manage-panel {
     position: absolute;
     top: 100%;
@@ -420,24 +472,27 @@
     margin-top: 4px;
     background: #fff;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: var(--radius);
     padding: 0.25rem;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     z-index: 10;
     white-space: nowrap;
   }
+
   .manage-panel label {
     display: flex;
     align-items: center;
     gap: 0.4rem;
     padding: 0.3rem 0.6rem;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     border-radius: 4px;
   }
+
   .manage-panel label:hover {
     background: var(--surface);
   }
+
   .manage-panel input[type="checkbox"] {
     margin: 0;
   }

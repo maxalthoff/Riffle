@@ -258,13 +258,13 @@
   }
   .dialog {
     background: #fff;
-    border-radius: 10px;
+    border-radius: var(--radius);
     padding: 1.75rem;
     width: 90%;
     max-width: 560px;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   }
   .header {
     display: flex;
@@ -296,16 +296,18 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     font-weight: 500;
-    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-secondary);
     flex: 1;
   }
   input, select {
     padding: 0.4rem 0.6rem;
     font-size: 0.95rem;
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius);
   }
   input:focus, select:focus {
     outline: none;
