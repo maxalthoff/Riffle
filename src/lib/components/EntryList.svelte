@@ -44,6 +44,7 @@
   function entryMatches(entry: MediaEntry, query: string): boolean {
     const q = query.toLowerCase();
     if (entry.title.toLowerCase().includes(q)) return true;
+    if (entry.creator?.toLowerCase().includes(q)) return true;
     const tags = parseTags(entry.tags);
     if (tags.some(t => t.includes(q))) return true;
     return false;
@@ -195,7 +196,7 @@
       <input
         type="search"
         bind:value={searchQuery}
-        placeholder="Search by title..."
+        placeholder="Search titles, creators, tags..."
       />
       <select bind:value={filterCategory}>
           <option value="">All Categories</option>
