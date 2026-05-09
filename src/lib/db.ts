@@ -23,4 +23,5 @@ export interface MediaEntry {
   genre: string | null;
   details: string | null;
   date_started: string | null;
+  image: string | null;
 }

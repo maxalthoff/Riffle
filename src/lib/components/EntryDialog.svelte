@@ -20,6 +20,8 @@
   let detailsState = $state<Record<string, string>>({});
   let dateStarted = $state('');
   let dateCompleted = $state('');
+  let imageUrl = $state('');
+  let fileInput: HTMLInputElement | undefined = $state(undefined);
   let today = new Date().toISOString().substring(0, 10);
 
   const CATEGORY_ICON: Record<string, string> = {
@@ -43,6 +45,7 @@
       genre = e.genre ?? '';
       dateStarted = e.date_started ? e.date_started.substring(0, 10) : '';
       dateCompleted = e.date_completed ? e.date_completed.substring(0, 10) : '';
+      imageUrl = e.image ?? '';
       resetDetails(e.details);
     } else {
       title = '';
@@ -54,6 +57,7 @@
       detailsState = {};
       dateStarted = '';
       dateCompleted = '';
+      imageUrl = '';
     }
     error = '';
   }
@@ -73,6 +77,17 @@
   function handleCategoryChange() {
     detailsState = {};
   }
+
+  function handleCoverSelect() {
+    const file = fileInput?.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { imageUrl = reader.result as string; };
+    reader.readAsDataURL(file);
+    fileInput!.value = '';
+  }
+
+  function removeCover() { imageUrl = ''; }
 
   onMount(() => { resetForm(entry); });
 
@@ -101,14 +116,14 @@
 
       if (editing) {
         await db.execute(
-          'UPDATE core_media SET title = $1, media_category = $2, status = $3, year = $4, creator = $5, genre = $6, details = $7, date_started = $8, date_completed = $9 WHERE id = $10',
-          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, genre.trim() || null, detailsJson, ds, dc, entry!.id]
+          'UPDATE core_media SET title = $1, media_category = $2, status = $3, year = $4, creator = $5, genre = $6, details = $7, date_started = $8, date_completed = $9, image = $10 WHERE id = $11',
+          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, genre.trim() || null, detailsJson, ds, dc, imageUrl || null, entry!.id]
         );
       } else {
         await db.execute(
-          `INSERT INTO core_media (title, media_category, status, year, creator, genre, details, date_started, date_completed)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, genre.trim() || null, detailsJson, ds, dc]
+          `INSERT INTO core_media (title, media_category, status, year, creator, genre, details, date_started, date_completed, image)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, genre.trim() || null, detailsJson, ds, dc, imageUrl || null]
         );
       }
       onClose();
@@ -178,6 +193,16 @@
           Completed on
           <input type="date" bind:value={dateCompleted} max={today} disabled={saving} />
         </label>
+      </div>
+
+      <div class="cover-section">
+        {#if imageUrl}
+          <img src={imageUrl} alt="Cover" class="cover-preview" />
+          <button type="button" onclick={removeCover} disabled={saving}>Remove Cover</button>
+        {:else}
+          <button type="button" onclick={() => fileInput?.click()} disabled={saving}>Add Cover</button>
+        {/if}
+        <input type="file" accept="image/*" bind:this={fileInput} hidden onchange={handleCoverSelect} />
       </div>
 
       {#if CATEGORY_DETAILS[category]}
@@ -310,6 +335,20 @@
     color: var(--danger);
     margin: 0;
     font-size: 0.85rem;
+  }
+  .cover-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-top: 1px solid var(--surface);
+    padding-top: 0.75rem;
+  }
+  .cover-preview {
+    width: 80px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid var(--border);
   }
   .actions {
     display: flex;

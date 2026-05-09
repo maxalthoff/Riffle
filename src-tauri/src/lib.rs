@@ -38,6 +38,12 @@ pub fn run() {
             sql: "ALTER TABLE core_media ADD COLUMN date_started TEXT;",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 5,
+            description: "add image column for cover art",
+            sql: "ALTER TABLE core_media ADD COLUMN image TEXT;",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
