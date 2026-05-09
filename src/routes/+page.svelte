@@ -54,8 +54,6 @@
 </script>
 
 <main>
-  <h1>Riffle</h1>
-
   {#if dbError}
     <p class="error">Database error: {dbError}</p>
   {:else}
@@ -74,11 +72,6 @@
     margin: 0 auto;
     padding: 2.5rem 3rem;
     font-family: var(--font);
-  }
-
-  h1 {
-    margin: 0 0 0.75rem;
-    font-size: 1.5rem;
   }
 
   .add-btn {
