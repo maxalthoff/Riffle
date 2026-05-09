@@ -59,8 +59,12 @@
     }
   });
 
+  const TABLE_HIDDEN_KEYS = ['frequency'];
+
   let detailColumns = $derived<DetailField[]>(
-    filterCategory && CATEGORY_DETAILS[filterCategory] ? CATEGORY_DETAILS[filterCategory] : []
+    filterCategory && CATEGORY_DETAILS[filterCategory]
+      ? CATEGORY_DETAILS[filterCategory].filter(d => !TABLE_HIDDEN_KEYS.includes(d.key))
+      : []
   );
 
   const filteredEntries = $derived(entries.filter(e => {
