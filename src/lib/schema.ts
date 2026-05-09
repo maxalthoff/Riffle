@@ -9,7 +9,7 @@ export interface DetailField {
 export const CATEGORY_DETAILS: Record<string, DetailField[]> = {
   Movie: [
     { key: 'runtime',  label: 'Runtime (min)', type: 'number' },
-    { key: 'language', label: 'Language',      type: 'text'   },
+    { key: 'creator',  label: 'Director',      type: 'text', fromEntry: true },
     { key: 'country',  label: 'Country',       type: 'text'   },
   ],
   Book: [
@@ -24,7 +24,7 @@ export const CATEGORY_DETAILS: Record<string, DetailField[]> = {
   ],
   Game: [
     { key: 'platform',  label: 'Platform',  type: 'text' },
-    { key: 'publisher', label: 'Publisher', type: 'text' },
+    { key: 'creator',   label: 'Developer', type: 'text', fromEntry: true },
   ],
   Podcast: [
     { key: 'episodes',  label: 'Episodes',  type: 'number' },
