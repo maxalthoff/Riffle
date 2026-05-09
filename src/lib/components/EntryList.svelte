@@ -8,6 +8,8 @@
   let saving = $state(false);
   let confirmingId = $state<number | null>(null);
   let showManage = $state(false);
+  let changingStatusId = $state<number | null>(null);
+  let changingStatusValue = $state('');
 
   let sortBy = $state('date');
   let sortDir = $state<'asc' | 'desc'>('desc');
@@ -96,18 +98,28 @@
     }
   }
 
-  async function markComplete(id: number) {
+  function startStatusChange(entry: MediaEntry) {
+    changingStatusId = entry.id;
+    changingStatusValue = entry.status ?? 'Want to Consume';
+  }
+
+  async function saveStatus(id: number) {
     saving = true;
     try {
       const db = await getDb();
       await db.execute(
-        "UPDATE core_media SET status = 'Completed', date_completed = datetime('now') WHERE id = $1",
-        [id]
+        "UPDATE core_media SET status = $1, date_completed = CASE WHEN $1 = 'Completed' THEN datetime('now') ELSE date_completed END WHERE id = $2",
+        [changingStatusValue, id]
       );
+      changingStatusId = null;
       onEntriesChanged();
     } finally {
       saving = false;
     }
+  }
+
+  function cancelStatusChange() {
+    changingStatusId = null;
   }
 
   function requestDelete(id: number) {
@@ -219,9 +231,30 @@
             <td>{CATEGORY_ICON[entry.media_category ?? ''] ?? ''} {entry.media_category ?? '—'}</td>
             <td>
               {#if entry.status}
-                <span class="badge" style="background: {STATUS_COLORS[entry.status] ?? '#6b7280'}">
-                  {statusDisplayLabel(entry.status, entry.media_category)}
-                </span>
+                {#if changingStatusId === entry.id}
+                  <!-- svelte-ignore a11y_autofocus -->
+                  <select
+                    bind:value={changingStatusValue}
+                    onchange={() => saveStatus(entry.id)}
+                    onblur={cancelStatusChange}
+                    autofocus
+                    class="status-select"
+                  >
+                    {#each STATUSES as s}
+                      <option value={s}>{statusDisplayLabel(s, entry.media_category)}</option>
+                    {/each}
+                  </select>
+                {:else}
+                  <!-- svelte-ignore a11y_click_events_have_key_events -->
+                  <!-- svelte-ignore a11y_no_static_element_interactions -->
+                  <span
+                    class="badge"
+                    style="background: {STATUS_COLORS[entry.status] ?? '#6b7280'}; cursor: pointer"
+                    onclick={() => startStatusChange(entry)}
+                  >
+                    {statusDisplayLabel(entry.status, entry.media_category)}
+                  </span>
+                {/if}
               {:else}
                 —
               {/if}
@@ -231,13 +264,6 @@
             {/each}
             <td class="date-cell">{formatDate(entry.date_added)}</td>
             <td class="actions-cell">
-              {#if entry.status !== 'Completed'}
-                <button class="icon-btn complete-btn" onclick={() => markComplete(entry.id)} disabled={saving} title="Mark Complete">
-                  {saving ? '...' : '✓'}
-                </button>
-              {:else}
-                <span class="done">✓</span>
-              {/if}
               <button class="icon-btn" onclick={() => onEdit(entry)} disabled={saving} title="Edit">✎</button>
               <button
                 class="icon-btn delete-btn"
@@ -357,13 +383,13 @@
     white-space: nowrap;
   }
 
-  .done {
-    color: var(--success);
-    font-weight: bold;
-    font-size: 0.95rem;
-    display: inline-block;
-    width: 28px;
-    text-align: center;
+  .status-select {
+    padding: 1px 4px;
+    font-size: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    color: var(--text);
   }
 
   .actions-cell {
@@ -391,15 +417,6 @@
   .icon-btn:disabled {
     opacity: 0.35;
     cursor: default;
-  }
-
-  .complete-btn {
-    color: var(--success);
-  }
-
-  .complete-btn:hover {
-    background: #f0fdf4;
-    color: var(--success-hover);
   }
 
   .delete-btn:hover {
