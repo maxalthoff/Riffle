@@ -4,6 +4,7 @@
   import { seedDatabase } from '$lib/seed';
   import { loadEnabledCategories, setCategoryEnabled } from '$lib/settings';
   import { CATEGORIES } from '$lib/types';
+  import Icon from '$lib/components/Icon.svelte';
   import EntryDialog from '$lib/components/EntryDialog.svelte';
   import EntryList from '$lib/components/EntryList.svelte';
 
@@ -83,7 +84,7 @@
         </div>
         <div class="header-actions">
           <button class="theme-btn" onclick={toggleTheme} title="Toggle dark mode">
-            {isDark ? '☀️' : '🌙'}
+            <Icon name={isDark ? 'sun' : 'moon'} />
           </button>
           <button class="add-btn" onclick={() => editingEntry = null}>+ Add Entry</button>
         </div>
@@ -151,6 +152,7 @@
     padding: 0.4rem 0.5rem;
     cursor: pointer;
     font-size: 1rem;
+    color: var(--text);
     line-height: 1;
   }
 

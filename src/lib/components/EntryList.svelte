@@ -2,6 +2,7 @@
   import { getDb, type MediaEntry } from '$lib/db';
   import { CATEGORIES, STATUSES, statusDisplayLabel } from '$lib/types';
   import { CATEGORY_DETAILS, parseDetails, type DetailField } from '$lib/schema';
+  import Icon from '$lib/components/Icon.svelte';
 
   let { entries, onEntriesChanged, onEdit, enabledCategories, onCategoryToggled }: { entries: MediaEntry[]; onEntriesChanged: () => void; onEdit: (entry: MediaEntry) => void; enabledCategories: Set<string>; onCategoryToggled: (category: string, enabled: boolean) => void } = $props();
 
@@ -24,10 +25,6 @@
     'Completed': '#22c55e',
     'On Hold': '#6b7280',
     'Dropped': '#ef4444',
-  };
-
-  const CATEGORY_ICON: Record<string, string> = {
-    Movie: '🎬', Book: '📖', Show: '📺', Game: '🎮', Podcast: '🎙️',
   };
 
   function formatDate(raw: string | null): string {
@@ -172,9 +169,9 @@
         placeholder="Search by title..."
       />
       <select bind:value={filterCategory}>
-        <option value="">All Categories</option>
+          <option value="">All Categories</option>
         {#each CATEGORIES.filter(c => enabledCategories.has(c)) as c}
-          <option value={c}>{CATEGORY_ICON[c] ?? ''} {c}</option>
+          <option value={c}>{c}</option>
         {/each}
       </select>
       <select bind:value={filterStatus}>
@@ -197,7 +194,7 @@
                   disabled={isLastEnabled(cat)}
                   onchange={() => onCategoryToggled(cat, !enabledCategories.has(cat))}
                 />
-                {CATEGORY_ICON[cat] ?? ''} {cat}
+                <Icon name={cat.toLowerCase()} /> {cat}
               </label>
             {/each}
           </div>
@@ -240,7 +237,7 @@
               {/if}
               {entry.title}
             </td>
-            <td>{CATEGORY_ICON[entry.media_category ?? ''] ?? ''} {entry.media_category ?? '—'}</td>
+            <td><Icon name={entry.media_category?.toLowerCase()} /> {entry.media_category ?? '—'}</td>
             <td>
               {#if entry.status}
                 {#if changingStatusId === entry.id}
@@ -369,7 +366,6 @@
     flex-shrink: 0;
     border: 1px solid var(--border);
   }
-
   .detail-cell {
     color: var(--text-secondary);
     font-size: 0.85rem;

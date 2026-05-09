@@ -4,6 +4,7 @@
   import { getDb, type MediaEntry } from '$lib/db';
   import { CATEGORIES, STATUSES, CREATOR_LABEL, statusDisplayLabel } from '$lib/types';
   import { CATEGORY_DETAILS } from '$lib/schema';
+  import Icon from '$lib/components/Icon.svelte';
 
   let { entry, onClose, enabledCategories }: { entry: MediaEntry | null; onClose: () => void; enabledCategories: Set<string> } = $props();
 
@@ -24,16 +25,7 @@
   let fileInput: HTMLInputElement | undefined = $state(undefined);
   let today = new Date().toISOString().substring(0, 10);
 
-  const CATEGORY_ICON: Record<string, string> = {
-    Movie: '🎬', Book: '📖', Show: '📺', Game: '🎮', Podcast: '🎙️',
-  };
-
   let creatorLabel = $derived(CREATOR_LABEL[category] ?? 'Creator');
-  let dialogTitle = $derived(
-    editing
-      ? `Edit ${CATEGORY_ICON[entry!.media_category ?? ''] ?? ''} ${entry!.title}`
-      : 'Add Entry'
-  );
 
   function resetForm(e: MediaEntry | null) {
     if (e) {
@@ -140,7 +132,13 @@
 <div class="overlay" transition:fade={{ duration: 120 }} onclick={handleOverlayClick}>
   <div class="dialog" transition:scale={{ start: 0.95, duration: 120 }} onclick={(e) => e.stopPropagation()}>
     <div class="header">
-      <h2>{dialogTitle}</h2>
+      <h2>
+        {editing ? `Edit ` : 'Add Entry'}
+        {#if editing}
+          <Icon name={entry!.media_category?.toLowerCase()} />
+          {entry!.title}
+        {/if}
+      </h2>
       <button class="close" onclick={onClose} disabled={saving}>✕</button>
     </div>
 
@@ -159,7 +157,7 @@
           </div>
         {:else}
           <div class="cover-dropzone" onclick={() => fileInput?.click()}>
-            <span class="cover-icon">🖼</span>
+            <span class="cover-icon">            <Icon name="image" size={24} /></span>
             <span class="cover-label">Add Cover</span>
           </div>
         {/if}
@@ -171,7 +169,7 @@
           Category
           <select bind:value={category} onchange={handleCategoryChange} disabled={saving}>
             {#each CATEGORIES.filter(c => enabledCategories.has(c)) as c}
-              <option value={c}>{CATEGORY_ICON[c]} {c}</option>
+              <option value={c}>{c}</option>
             {/each}
           </select>
         </label>
@@ -283,6 +281,9 @@
   .header h2 {
     margin: 0;
     font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
   }
   .close {
     background: none;
@@ -380,8 +381,8 @@
     text-align: left;
   }
   .cover-icon {
-    font-size: 1.5rem;
-    display: block;
+    display: inline-flex;
+    align-items: center;
     margin-bottom: 0.25rem;
   }
   .cover-label {
