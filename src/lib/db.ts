@@ -20,8 +20,8 @@ export interface MediaEntry {
   date_completed: string | null;
   year: number | null;
   creator: string | null;
-  genre: string | null;
   details: string | null;
   date_started: string | null;
   image: string | null;
+  tags: string | null;
 }

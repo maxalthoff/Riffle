@@ -36,6 +36,11 @@
     return +m[1] === new Date().getFullYear() ? label : `${label}, ${+m[1]}`;
   }
 
+  function parseTags(raw: string | null): string[] {
+    if (!raw) return [];
+    try { const p = JSON.parse(raw); return Array.isArray(p) ? p : []; } catch { return []; }
+  }
+
   function isLastEnabled(cat: string): boolean {
     return enabledCategories.size === 1 && enabledCategories.has(cat);
   }
@@ -125,7 +130,7 @@
 
   function startStatusChange(entry: MediaEntry) {
     changingStatusId = entry.id;
-    changingStatusValue = entry.status ?? 'Want to Consume';
+    changingStatusValue = entry.status ?? 'Want to Start';
   }
 
   async function saveStatus(id: number) {
@@ -251,7 +256,16 @@
               {#if entry.image}
                 <img src={entry.image} alt="" class="cover-thumb" />
               {/if}
-              {entry.title}
+              <div class="title-block">
+                <span>{entry.title}</span>
+                {#if entry.tags}
+                  <div class="title-tags">
+                    {#each parseTags(entry.tags) as tag}
+                      <span class="tag-chip">{tag}</span>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
             </td>
             <td><Icon name={entry.media_category?.toLowerCase()} /> {entry.media_category ?? '—'}</td>
             <td>
@@ -367,11 +381,30 @@
 
   .title-cell {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.5rem;
     font-weight: 500;
     color: var(--text);
     font-size: 0.9rem;
+  }
+  .title-block {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .title-tags {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+    margin-top: 0.15rem;
+  }
+  .tag-chip {
+    font-size: 0.7rem;
+    background: var(--surface);
+    color: var(--text-secondary);
+    padding: 1px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
   }
 
   .cover-thumb {

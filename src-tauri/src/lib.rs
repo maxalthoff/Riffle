@@ -20,10 +20,9 @@ pub fn run() {
         },
         Migration {
             version: 2,
-            description: "add year, creator, genre columns",
+            description: "add year, creator columns",
             sql: "ALTER TABLE core_media ADD COLUMN year INTEGER;
-                  ALTER TABLE core_media ADD COLUMN creator TEXT;
-                  ALTER TABLE core_media ADD COLUMN genre TEXT;",
+                  ALTER TABLE core_media ADD COLUMN creator TEXT;",
             kind: MigrationKind::Up,
         },
         Migration {
@@ -57,6 +56,12 @@ pub fn run() {
             version: 7,
             description: "rename Want to Consume to Want to Start",
             sql: "UPDATE core_media SET status = 'Want to Start' WHERE status = 'Want to Consume';",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 8,
+            description: "add tags JSON column",
+            sql: "ALTER TABLE core_media ADD COLUMN tags TEXT;",
             kind: MigrationKind::Up,
         },
     ];

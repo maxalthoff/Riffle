@@ -14,15 +14,17 @@
 
   let title = $state('');
   let category = $state('');
-  let status = $state('Want to Consume');
+  let status = $state('Want to Start');
   let year = $state('');
   let creator = $state('');
-  let genre = $state('');
   let detailsState = $state<Record<string, string>>({});
   let dateStarted = $state('');
   let dateCompleted = $state('');
   let imageUrl = $state('');
   let fileInput: HTMLInputElement | undefined = $state(undefined);
+  let tags = $state<string[]>([]);
+  let tagInput = $state('');
+  let allTags = $state<string[]>([]);
   let today = new Date().toISOString().substring(0, 10);
 
   let creatorLabel = $derived(CREATOR_LABEL[category] ?? 'Creator');
@@ -31,27 +33,59 @@
     if (e) {
       title = e.title;
       category = e.media_category ?? CATEGORIES.find(c => enabledCategories.has(c)) ?? 'Movie';
-      status = e.status ?? 'Want to Consume';
+      status = e.status ?? 'Want to Start';
       year = e.year?.toString() ?? '';
       creator = e.creator ?? '';
-      genre = e.genre ?? '';
       dateStarted = e.date_started ? e.date_started.substring(0, 10) : '';
       dateCompleted = e.date_completed ? e.date_completed.substring(0, 10) : '';
       imageUrl = e.image ?? '';
+      tags = parseTags(e.tags);
       resetDetails(e.details);
     } else {
       title = '';
       category = CATEGORIES.find(c => enabledCategories.has(c)) ?? 'Movie';
-      status = 'Want to Consume';
+      status = 'Want to Start';
       year = '';
       creator = '';
-      genre = '';
       detailsState = {};
       dateStarted = '';
       dateCompleted = '';
       imageUrl = '';
+      tags = [];
     }
     error = '';
+    loadAllTags();
+  }
+
+  function parseTags(raw: string | null): string[] {
+    if (!raw) return [];
+    try { const p = JSON.parse(raw); return Array.isArray(p) ? p : []; } catch { return []; }
+  }
+
+  async function loadAllTags() {
+    try {
+      const db = await getDb();
+      const rows = await db.select<{ tags: string | null }[]>('SELECT tags FROM core_media WHERE tags IS NOT NULL');
+      const all: string[] = [];
+      for (const r of rows) {
+        const t = parseTags(r.tags);
+        for (const tag of t) {
+          if (!all.includes(tag)) all.push(tag);
+        }
+      }
+      allTags = all.sort();
+    } catch { /* silent */ }
+  }
+
+  function addTag() {
+    const t = tagInput.trim().toLowerCase();
+    if (!t || tags.includes(t)) return;
+    tags = [...tags, t];
+    tagInput = '';
+  }
+
+  function removeTag(t: string) {
+    tags = tags.filter(x => x !== t);
   }
 
   function resetDetails(raw: string | null) {
@@ -108,14 +142,14 @@
 
       if (editing) {
         await db.execute(
-          'UPDATE core_media SET title = $1, media_category = $2, status = $3, year = $4, creator = $5, genre = $6, details = $7, date_started = $8, date_completed = $9, image = $10 WHERE id = $11',
-          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, genre.trim() || null, detailsJson, ds, dc, imageUrl || null, entry!.id]
+          'UPDATE core_media SET title = $1, media_category = $2, status = $3, year = $4, creator = $5, details = $6, date_started = $7, date_completed = $8, image = $9, tags = $10 WHERE id = $11',
+          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, detailsJson, ds, dc, imageUrl || null, tags.length > 0 ? JSON.stringify(tags) : null, entry!.id]
         );
       } else {
         await db.execute(
-          `INSERT INTO core_media (title, media_category, status, year, creator, genre, details, date_started, date_completed, image)
+          `INSERT INTO core_media (title, media_category, status, year, creator, details, date_started, date_completed, image, tags)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, genre.trim() || null, detailsJson, ds, dc, imageUrl || null]
+          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, detailsJson, ds, dc, imageUrl || null, tags.length > 0 ? JSON.stringify(tags) : null]
         );
       }
       onClose();
@@ -192,10 +226,6 @@
           {creatorLabel}
           <input type="text" bind:value={creator} disabled={saving} />
         </label>
-        <label>
-          Genre
-          <input type="text" bind:value={genre} disabled={saving} />
-        </label>
       </div>
 
       <div class="row date-section">
@@ -235,6 +265,36 @@
           </div>
         </fieldset>
       {/if}
+
+      <div class="tags-section">
+        <label for="tag-input">Tags</label>
+        <div class="tag-input-row">
+          <input
+            id="tag-input"
+            type="text"
+            bind:value={tagInput}
+            placeholder="Type and press Enter to add"
+            list="tag-suggestions"
+            onkeydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
+            disabled={saving}
+          />
+          <datalist id="tag-suggestions">
+            {#each allTags.filter(t => !tags.includes(t)) as tag}
+              <option value={tag} />
+            {/each}
+          </datalist>
+        </div>
+        {#if tags.length > 0}
+          <div class="tag-chips">
+            {#each tags as tag}
+              <span class="tag-chip">
+                {tag}
+                <button type="button" class="tag-remove" onclick={() => removeTag(tag)} disabled={saving}>×</button>
+              </span>
+            {/each}
+          </div>
+        {/if}
+      </div>
 
       {#if error}
         <p class="error">{error}</p>
@@ -354,6 +414,48 @@
     color: var(--danger);
     margin: 0;
     font-size: 0.85rem;
+  }
+  .tags-section {
+    border-top: 1px solid var(--border);
+    padding-top: 0.75rem;
+  }
+  .tags-section label {
+    margin-bottom: 0.25rem;
+  }
+  .tag-input-row {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .tag-input-row input {
+    flex: 1;
+  }
+  .tag-chips {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+  .tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    background: var(--surface);
+    color: var(--text);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .tag-remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0;
+    line-height: 1;
+    color: var(--text-secondary);
+  }
+  .tag-remove:hover {
+    color: var(--danger);
   }
   .cover-section {
     margin-bottom: 0.25rem;
