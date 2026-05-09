@@ -88,11 +88,15 @@
         cmp = (a.date_added ?? '').localeCompare(b.date_added ?? '');
         break;
       default: {
-        const col = detailColumns.find(d => d.key === sortBy);
+        const detailKey = sortBy.startsWith('_d.') ? sortBy.slice(3) : null;
+        const col = detailKey ? detailColumns.find(d => d.key === detailKey) : null;
         let aVal, bVal;
-        if (col?.fromEntry) {
-          aVal = (a as any)[sortBy];
-          bVal = (b as any)[sortBy];
+        if (col?.fromEntry && detailKey) {
+          aVal = (a as any)[detailKey];
+          bVal = (b as any)[detailKey];
+        } else if (detailKey) {
+          aVal = parseDetails(a.details)[detailKey];
+          bVal = parseDetails(b.details)[detailKey];
         } else {
           aVal = parseDetails(a.details)[sortBy];
           bVal = parseDetails(b.details)[sortBy];
@@ -226,8 +230,8 @@
             Status {sortBy === 'status' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
           </th>
           {#each detailColumns as col}
-            <th class="sortable" onclick={() => toggleSort(col.key)}>
-              {col.label} {sortBy === col.key ? (sortDir === 'asc' ? '↑' : '↓') : ''}
+            <th class="sortable" onclick={() => toggleSort('_d.' + col.key)}>
+              {col.label} {sortBy === '_d.' + col.key ? (sortDir === 'asc' ? '↑' : '↓') : ''}
             </th>
           {/each}
           <th class="sortable" onclick={() => toggleSort('date')}>

@@ -20,7 +20,7 @@ export const CATEGORY_DETAILS: Record<string, DetailField[]> = {
   Show: [
     { key: 'seasons',  label: 'Seasons',          type: 'number' },
     { key: 'network',  label: 'Network/Streamer', type: 'text'   },
-    { key: 'status',   label: 'Status',           type: 'select', options: ['Ongoing', 'Cancelled', 'Finished'] },
+    { key: 'status',   label: 'Running',          type: 'select', options: ['Ongoing', 'Cancelled', 'Finished'] },
   ],
   Game: [
     { key: 'platform',  label: 'Platform',  type: 'text' },
@@ -30,7 +30,7 @@ export const CATEGORY_DETAILS: Record<string, DetailField[]> = {
     { key: 'episodes',  label: 'Episodes',  type: 'number' },
     { key: 'creator',   label: 'Host(s)',   type: 'text', fromEntry: true },
     { key: 'frequency', label: 'Frequency', type: 'select', options: ['Daily', 'Weekly', 'Biweekly', 'Monthly', 'Seasonal', 'Irregular'] },
-    { key: 'status',    label: 'Status',    type: 'select', options: ['Ongoing', 'Cancelled', 'Finished'] },
+    { key: 'status',    label: 'Running',  type: 'select', options: ['Ongoing', 'Cancelled', 'Finished'] },
   ],
 };
 
