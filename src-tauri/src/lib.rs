@@ -44,6 +44,15 @@ pub fn run() {
             sql: "ALTER TABLE core_media ADD COLUMN image TEXT;",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 6,
+            description: "create category_settings table",
+            sql: "CREATE TABLE IF NOT EXISTS category_settings (
+                category TEXT PRIMARY KEY,
+                enabled INTEGER NOT NULL DEFAULT 1
+            );",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

@@ -5,14 +5,14 @@
   import { CATEGORIES, STATUSES, CREATOR_LABEL } from '$lib/types';
   import { CATEGORY_DETAILS } from '$lib/schema';
 
-  let { entry, onClose }: { entry: MediaEntry | null; onClose: () => void } = $props();
+  let { entry, onClose, enabledCategories }: { entry: MediaEntry | null; onClose: () => void; enabledCategories: Set<string> } = $props();
 
   let editing = $derived(entry !== null);
   let saving = $state(false);
   let error = $state('');
 
   let title = $state('');
-  let category = $state('Movie');
+  let category = $state('');
   let status = $state('Want to Consume');
   let year = $state('');
   let creator = $state('');
@@ -38,7 +38,7 @@
   function resetForm(e: MediaEntry | null) {
     if (e) {
       title = e.title;
-      category = e.media_category ?? 'Movie';
+      category = e.media_category ?? CATEGORIES.find(c => enabledCategories.has(c)) ?? 'Movie';
       status = e.status ?? 'Want to Consume';
       year = e.year?.toString() ?? '';
       creator = e.creator ?? '';
@@ -49,7 +49,7 @@
       resetDetails(e.details);
     } else {
       title = '';
-      category = 'Movie';
+      category = CATEGORIES.find(c => enabledCategories.has(c)) ?? 'Movie';
       status = 'Want to Consume';
       year = '';
       creator = '';
@@ -154,8 +154,8 @@
         <label>
           Category
           <select bind:value={category} onchange={handleCategoryChange} disabled={saving}>
-            {#each CATEGORIES as c}
-              <option value={c}>{c}</option>
+            {#each CATEGORIES.filter(c => enabledCategories.has(c)) as c}
+              <option value={c}>{CATEGORY_ICON[c]} {c}</option>
             {/each}
           </select>
         </label>

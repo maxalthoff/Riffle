@@ -2,6 +2,8 @@
   import { onMount } from 'svelte';
   import { getDb, type MediaEntry } from '$lib/db';
   import { seedDatabase } from '$lib/seed';
+  import { loadEnabledCategories, setCategoryEnabled } from '$lib/settings';
+  import { CATEGORIES } from '$lib/types';
   import EntryDialog from '$lib/components/EntryDialog.svelte';
   import EntryList from '$lib/components/EntryList.svelte';
 
@@ -9,6 +11,7 @@
   let entries: MediaEntry[] = $state([]);
   let dbError = $state('');
   let editingEntry = $state<MediaEntry | null | undefined>(undefined);
+  let enabledCategories = $state<Set<string>>(new Set(CATEGORIES));
 
   async function loadEntries() {
     try {
@@ -24,12 +27,30 @@
     }
   }
 
+  async function loadCategories() {
+    try {
+      const db = await getDb();
+      enabledCategories = await loadEnabledCategories(db);
+    } catch (e) {
+      dbError = String(e);
+    }
+  }
+
+  async function handleCategoryToggled(category: string, enabled: boolean) {
+    const db = await getDb();
+    await setCategoryEnabled(db, category, enabled);
+    enabledCategories = await loadEnabledCategories(db);
+  }
+
   function handleClose() {
     editingEntry = undefined;
     loadEntries();
   }
 
-  onMount(loadEntries);
+  onMount(async () => {
+    await loadCategories();
+    await loadEntries();
+  });
 </script>
 
 <main>
@@ -39,12 +60,12 @@
     <p class="error">Database error: {dbError}</p>
   {:else}
     <button class="add-btn" onclick={() => editingEntry = null}>+ Add Entry</button>
-    <EntryList {entries} onEntriesChanged={loadEntries} onEdit={(e) => editingEntry = e} />
+    <EntryList {entries} {enabledCategories} onEntriesChanged={loadEntries} onEdit={(e) => editingEntry = e} onCategoryToggled={handleCategoryToggled} />
   {/if}
 </main>
 
 {#if editingEntry !== undefined}
-  <EntryDialog entry={editingEntry} onClose={handleClose} />
+  <EntryDialog entry={editingEntry} {enabledCategories} onClose={handleClose} />
 {/if}
 
 <style>

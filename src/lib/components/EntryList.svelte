@@ -3,10 +3,11 @@
   import { CATEGORIES, STATUSES } from '$lib/types';
   import { CATEGORY_DETAILS, parseDetails, type DetailField } from '$lib/schema';
 
-  let { entries, onEntriesChanged, onEdit }: { entries: MediaEntry[]; onEntriesChanged: () => void; onEdit: (entry: MediaEntry) => void } = $props();
+  let { entries, onEntriesChanged, onEdit, enabledCategories, onCategoryToggled }: { entries: MediaEntry[]; onEntriesChanged: () => void; onEdit: (entry: MediaEntry) => void; enabledCategories: Set<string>; onCategoryToggled: (category: string, enabled: boolean) => void } = $props();
 
   let saving = $state(false);
   let confirmingId = $state<number | null>(null);
+  let showManage = $state(false);
 
   let sortBy = $state('date');
   let sortDir = $state<'asc' | 'desc'>('desc');
@@ -34,11 +35,25 @@
     return `${months[+m[2] - 1]} ${+m[3]}`;
   }
 
+  function isLastEnabled(cat: string): boolean {
+    return enabledCategories.size === 1 && enabledCategories.has(cat);
+  }
+
+  function toggleManage() {
+    showManage = !showManage;
+  }
+
+  function handleManageOverlay() {
+    showManage = false;
+  }
+
   let detailColumns = $derived<DetailField[]>(
     filterCategory && CATEGORY_DETAILS[filterCategory] ? CATEGORY_DETAILS[filterCategory] : []
   );
 
   const filteredEntries = $derived(entries.filter(e => {
+    const cat = e.media_category;
+    if (cat && !enabledCategories.has(cat)) return false;
     const matchesSearch = !searchQuery || e.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = !filterCategory || e.media_category === filterCategory;
     const matchesStatus = !filterStatus || e.status === filterStatus;
@@ -116,6 +131,12 @@
   }
 </script>
 
+{#if showManage}
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="manage-overlay" onclick={handleManageOverlay}></div>
+{/if}
+
 {#if entries.length === 0}
   <p class="empty">No entries yet. Add your first movie or book above.</p>
 {:else}
@@ -127,8 +148,8 @@
     />
     <select bind:value={filterCategory}>
       <option value="">All Categories</option>
-      {#each CATEGORIES as c}
-        <option value={c}>{c}</option>
+      {#each CATEGORIES.filter(c => enabledCategories.has(c)) as c}
+        <option value={c}>{CATEGORY_ICON[c] ?? ''} {c}</option>
       {/each}
     </select>
     <select bind:value={filterStatus}>
@@ -137,6 +158,26 @@
         <option value={s}>{s}</option>
       {/each}
     </select>
+    <div class="manage-wrapper">
+      <button class="manage-btn" onclick={toggleManage}>Manage ▾</button>
+      {#if showManage}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div class="manage-panel" onclick={(e) => e.stopPropagation()}>
+          {#each CATEGORIES as cat}
+            <label>
+              <input
+                type="checkbox"
+                checked={enabledCategories.has(cat)}
+                disabled={isLastEnabled(cat)}
+                onchange={() => onCategoryToggled(cat, !enabledCategories.has(cat))}
+              />
+              {CATEGORY_ICON[cat] ?? ''} {cat}
+            </label>
+          {/each}
+        </div>
+      {/if}
+    </div>
   </div>
 
   {#if filteredEntries.length === 0}
@@ -336,9 +377,11 @@
     gap: 0.5rem;
     margin-bottom: 0.5rem;
     flex-wrap: wrap;
+    align-items: center;
   }
   .filters input,
-  .filters select {
+  .filters select,
+  .manage-btn {
     padding: 0.35rem 0.5rem;
     font-size: 0.9rem;
     border: 1px solid #d1d5db;
@@ -354,5 +397,48 @@
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 15%, transparent);
+  }
+  .manage-btn {
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .manage-btn:hover {
+    background: var(--surface);
+  }
+  .manage-wrapper {
+    position: relative;
+  }
+  .manage-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+  }
+  .manage-panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.25rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 10;
+    white-space: nowrap;
+  }
+  .manage-panel label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    border-radius: 4px;
+  }
+  .manage-panel label:hover {
+    background: var(--surface);
+  }
+  .manage-panel input[type="checkbox"] {
+    margin: 0;
   }
 </style>
