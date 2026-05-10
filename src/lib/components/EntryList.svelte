@@ -1,8 +1,9 @@
 <script lang="ts">
   import { getDb, type MediaEntry } from '$lib/db';
-  import { CATEGORIES, STATUSES, statusDisplayLabel } from '$lib/types';
+  import { CATEGORIES, STATUSES, statusDisplayLabel, CREATOR_LABEL } from '$lib/types';
   import { CATEGORY_DETAILS, parseDetails, type DetailField } from '$lib/schema';
   import Icon from '$lib/components/Icon.svelte';
+  import { slide } from 'svelte/transition';
 
   let { entries, onEntriesChanged, onEdit, enabledCategories, onCategoryToggled }: { entries: MediaEntry[]; onEntriesChanged: () => void; onEdit: (entry: MediaEntry) => void; enabledCategories: Set<string>; onCategoryToggled: (category: string, enabled: boolean) => void } = $props();
 
@@ -17,6 +18,7 @@
   let searchQuery = $state('');
   let filterCategory = $state('');
   let filterStatus = $state('');
+  let expandedId = $state<number | null>(null);
   let wasSingle = false;
 
   const STATUS_COLORS: Record<string, string> = {
@@ -58,6 +60,10 @@
     showManage = !showManage;
   }
 
+  function toggleExpanded(id: number) {
+    expandedId = expandedId === id ? null : id;
+  }
+
   function handleManageOverlay() {
     showManage = false;
   }
@@ -80,6 +86,8 @@
       ? CATEGORY_DETAILS[filterCategory].filter(d => !TABLE_HIDDEN_KEYS.includes(d.key))
       : []
   );
+
+  let columnCount = $derived(5 + detailColumns.length);
 
   const filteredEntries = $derived(entries.filter(e => {
     const cat = e.media_category;
@@ -261,7 +269,7 @@
       <tbody>
         {#each sortedEntries as entry (entry.id)}
           <tr>
-            <td class="title-cell">
+            <td class="title-cell" onclick={() => toggleExpanded(entry.id)}>
               {#if entry.image}
                 <img src={entry.image} alt="" class="cover-thumb" />
               {/if}
@@ -324,6 +332,64 @@
               </button>
             </td>
           </tr>
+          {#if expandedId === entry.id}
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <tr class="info-row" transition:slide={{ duration: 150 }} onclick={() => toggleExpanded(entry.id)}>
+              <td colspan={columnCount}>
+                <div class="info-panel">
+                  <div class="panel-body">
+                    {#if entry.image}
+                      <img src={entry.image} alt="" class="panel-cover" />
+                    {/if}
+                    <div class="panel-fields">
+                      <div class="panel-row">
+                        <span class="panel-label">{CREATOR_LABEL[entry.media_category ?? ''] ?? 'Creator'}</span>
+                        <span>{entry.creator ?? '—'}</span>
+                      </div>
+                      {#if entry.media_category !== 'Podcast'}
+                        <div class="panel-row">
+                          <span class="panel-label">Year</span>
+                          <span>{entry.year ?? '—'}</span>
+                        </div>
+                      {/if}
+                      {#if entry.date_started}
+                        <div class="panel-row">
+                          <span class="panel-label">Started</span>
+                          <span>{formatDate(entry.date_started)}</span>
+                        </div>
+                      {/if}
+                      {#if entry.date_completed}
+                        <div class="panel-row">
+                          <span class="panel-label">Completed</span>
+                          <span>{formatDate(entry.date_completed)}</span>
+                        </div>
+                      {/if}
+                      {#each (CATEGORY_DETAILS[entry.media_category ?? ''] ?? []).filter(f => !f.fromEntry) as field}
+                        <div class="panel-row">
+                          <span class="panel-label">{field.label}</span>
+                          <span>{(field.fromEntry ? (entry as any)[field.key] : parseDetails(entry.details)[field.key]) ?? '—'}</span>
+                        </div>
+                      {/each}
+                      {#if entry.tags}
+                        <div class="panel-row">
+                          <span class="panel-label">Tags</span>
+                          <span class="panel-tags">
+                            {#each parseTags(entry.tags) as tag}
+                              <span class="tag-chip">{tag}</span>
+                            {/each}
+                          </span>
+                        </div>
+                      {/if}
+                    </div>
+                  </div>
+                  <div class="panel-actions">
+                    <button class="icon-btn" onclick={() => onEdit(entry)} disabled={saving} title="Edit">✎ Edit</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          {/if}
         {/each}
       </tbody>
     </table>
@@ -414,6 +480,57 @@
     padding: 1px 6px;
     border-radius: 4px;
     white-space: nowrap;
+  }
+  .info-row td {
+    padding: 0 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .info-panel {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+  }
+  .panel-body {
+    display: flex;
+    gap: 1rem;
+  }
+  .panel-cover {
+    width: 60px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .panel-fields {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem 1rem;
+  }
+  .panel-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .panel-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-secondary);
+  }
+  .panel-tags {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+  }
+  .panel-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
   }
 
   .cover-thumb {

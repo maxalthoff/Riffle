@@ -11,7 +11,7 @@ export const CREATOR_LABEL: Record<string, string> = {
   Book: 'Author',
   Show: 'Creator',
   Game: 'Developer',
-  Podcast: 'Host',
+  Podcast: 'Host(s)',
 };
 
 export function statusDisplayLabel(status: string, category?: string | null): string {
