@@ -31,6 +31,10 @@ const seeds = [
   { title: 'The Daily', category: 'Podcast', status: 'Want to Start', daysAgo: 1, creator: 'Michael Barbaro', details: { episodes: 5000, frequency: 'Daily', website: 'https://nytimes.com/thedaily' }, tags: ['news', 'daily'] },
   { title: 'Radiolab', category: 'Podcast', status: 'Completed', daysAgo: 250, creator: 'Jad Abumrad & Robert Krulwich', details: { episodes: 200, frequency: 'Weekly', website: 'https://radiolab.org' }, dateStarted: '2025-09-01', dateCompleted: '2025-10-01', tags: ['science', 'storytelling'] },
   { title: '99% Invisible', category: 'Podcast', status: 'Dropped', daysAgo: 200, creator: 'Roman Mars', details: { episodes: 600, frequency: 'Weekly', website: 'https://99percentinvisible.org' }, tags: ['design', 'architecture'] },
+  { title: 'Watchmen', category: 'Comic', status: 'Completed', daysAgo: 100, year: 1986, creator: 'Alan Moore & Dave Gibbons', details: { issues: 12, publisher: 'DC', format: 'Trade Paperback' }, dateStarted: '2026-01-01', dateCompleted: '2026-01-15', tags: ['superhero', 'classic', 'deconstruction'] },
+  { title: 'Saga', category: 'Comic', status: 'In Progress', daysAgo: 15, year: 2012, creator: 'Brian K. Vaughan & Fiona Staples', details: { issues: 66, publisher: 'Image', format: 'Trade Paperback' }, dateStarted: '2026-04-15', tags: ['sci-fi', 'fantasy', 'ongoing'] },
+  { title: 'The Sandman', category: 'Comic', status: 'Completed', daysAgo: 200, year: 1989, creator: 'Neil Gaiman', details: { issues: 75, publisher: 'DC', format: 'Omnibus' }, dateStarted: '2025-10-01', dateCompleted: '2025-12-01', tags: ['fantasy', 'classic', 'vertigo'] },
+  { title: 'Scott Pilgrim', category: 'Comic', status: 'Want to Start', daysAgo: 5, year: 2004, creator: 'Bryan Lee O\'Malley', details: { issues: 6, publisher: 'Oni Press', format: 'Trade Paperback' }, tags: ['comedy', 'indie', 'romance'] },
 ];
 
 export async function seedDatabase(db: Database) {

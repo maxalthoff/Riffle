@@ -1,4 +1,4 @@
-export const CATEGORIES = ['Movie', 'Book', 'Show', 'Game', 'Podcast'] as const;
+export const CATEGORIES = ['Movie', 'Book', 'Show', 'Game', 'Podcast', 'Comic'] as const;
 export type Category = typeof CATEGORIES[number];
 
 export const STATUSES = ['Want to Start', 'In Progress', 'Completed', 'On Hold', 'Dropped'] as const;
@@ -12,6 +12,7 @@ export const CREATOR_LABEL: Record<string, string> = {
   Show: 'Creator',
   Game: 'Developer',
   Podcast: 'Host(s)',
+  Comic: 'Writer/Artist',
 };
 
 export function statusDisplayLabel(status: string, category?: string | null): string {
@@ -22,6 +23,7 @@ export function statusDisplayLabel(status: string, category?: string | null): st
     Book: 'Want to Read',
     Game: 'Want to Play',
     Podcast: 'Want to Listen',
+    Comic: 'Want to Read',
   };
   return map[category] ?? status;
 }

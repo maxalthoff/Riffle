@@ -32,6 +32,12 @@ export const CATEGORY_DETAILS: Record<string, DetailField[]> = {
     { key: 'frequency', label: 'Frequency', type: 'select', options: ['Daily', 'Weekly', 'Biweekly', 'Monthly', 'Seasonal', 'Irregular'] },
     { key: 'status',    label: 'Running',  type: 'select', options: ['Ongoing', 'Cancelled', 'Finished'] },
   ],
+  Comic: [
+    { key: 'issues',    label: 'Issues',    type: 'number' },
+    { key: 'creator',   label: 'Writer/Artist', type: 'text', fromEntry: true },
+    { key: 'publisher', label: 'Publisher', type: 'text'   },
+    { key: 'format',    label: 'Format',    type: 'select', options: ['Single Issue', 'Trade Paperback', 'Omnibus', 'Hardback', 'Digital'] },
+  ],
 };
 
 export function parseDetails(raw: string | null): Record<string, string | number> {
