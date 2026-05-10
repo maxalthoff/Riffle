@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { fade, scale } from 'svelte/transition';
   import { getDb, type MediaEntry } from '$lib/db';
-  import { CATEGORIES, STATUSES, CREATOR_LABEL, statusDisplayLabel } from '$lib/types';
+  import { CATEGORIES, STATUSES, CREATOR_LABEL, CURRENT_LABEL, statusDisplayLabel } from '$lib/types';
   import { CATEGORY_DETAILS } from '$lib/schema';
   import Icon from '$lib/components/Icon.svelte';
 
@@ -25,9 +25,11 @@
   let tags = $state<string[]>([]);
   let tagInput = $state('');
   let allTags = $state<string[]>([]);
+  let current = $state('');
   let today = new Date().toISOString().substring(0, 10);
 
   let creatorLabel = $derived(CREATOR_LABEL[category] ?? 'Creator');
+  let currentLabel = $derived(CURRENT_LABEL[category] ?? '');
 
   function resetForm(e: MediaEntry | null) {
     if (e) {
@@ -40,6 +42,7 @@
       dateCompleted = e.date_completed ? e.date_completed.substring(0, 10) : '';
       imageUrl = e.image ?? '';
       tags = parseTags(e.tags);
+      current = e.current?.toString() ?? '';
       resetDetails(e.details);
     } else {
       title = '';
@@ -52,6 +55,7 @@
       dateCompleted = '';
       imageUrl = '';
       tags = [];
+      current = '';
     }
     error = '';
     loadAllTags();
@@ -142,14 +146,14 @@
 
       if (editing) {
         await db.execute(
-          'UPDATE core_media SET title = $1, media_category = $2, status = $3, year = $4, creator = $5, details = $6, date_started = $7, date_completed = $8, image = $9, tags = $10 WHERE id = $11',
-          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, detailsJson, ds, dc, imageUrl || null, tags.length > 0 ? JSON.stringify(tags) : null, entry!.id]
+          'UPDATE core_media SET title = $1, media_category = $2, status = $3, year = $4, creator = $5, details = $6, date_started = $7, date_completed = $8, image = $9, tags = $10, current = $11 WHERE id = $12',
+          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, detailsJson, ds, dc, imageUrl || null, tags.length > 0 ? JSON.stringify(tags) : null, current ? Number(current) : null, entry!.id]
         );
       } else {
         await db.execute(
-          `INSERT INTO core_media (title, media_category, status, year, creator, details, date_started, date_completed, image, tags)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, detailsJson, ds, dc, imageUrl || null, tags.length > 0 ? JSON.stringify(tags) : null]
+          `INSERT INTO core_media (title, media_category, status, year, creator, details, date_started, date_completed, image, tags, current)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, detailsJson, ds, dc, imageUrl || null, tags.length > 0 ? JSON.stringify(tags) : null, current ? Number(current) : null]
         );
       }
       onClose();
@@ -226,6 +230,12 @@
           {creatorLabel}
           <input type="text" bind:value={creator} disabled={saving} />
         </label>
+        {#if currentLabel}
+          <label>
+            Current {currentLabel}
+            <input type="number" bind:value={current} placeholder={currentLabel} min="0" disabled={saving} />
+          </label>
+        {/if}
       </div>
 
       <div class="row date-section">

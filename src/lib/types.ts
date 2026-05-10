@@ -15,6 +15,12 @@ export const CREATOR_LABEL: Record<string, string> = {
   Comic: 'Writer/Artist',
 };
 
+export const CURRENT_LABEL: Record<string, string> = {
+  Show: 'Episode',
+  Comic: 'Issue',
+  Podcast: 'Episode',
+};
+
 export function statusDisplayLabel(status: string, category?: string | null): string {
   if (status !== 'Want to Start' || !category) return status;
   const map: Record<string, string> = {

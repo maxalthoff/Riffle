@@ -24,4 +24,5 @@ export interface MediaEntry {
   date_started: string | null;
   image: string | null;
   tags: string | null;
+  current: number | null;
 }

@@ -13,9 +13,9 @@ const seeds = [
   { title: 'The Hitchhiker\'s Guide to the Galaxy', category: 'Book', status: 'Dropped', daysAgo: 50, year: 1979, creator: 'Douglas Adams', details: { pages: 224, language: 'English', format: 'Paperback' }, tags: ['comedy', 'sci-fi', 'cult'] },
   { title: 'The Name of the Wind', category: 'Book', status: 'In Progress', daysAgo: 8, year: 2007, creator: 'Patrick Rothfuss', details: { pages: 662, language: 'English', format: 'Paperback' }, dateStarted: '2026-04-28', tags: ['fantasy', 'epic', 'magic'] },
   { title: 'The Art of War', category: 'Book', status: 'Completed', daysAgo: 500, year: -500, creator: 'Sun Tzu', details: { pages: 68, language: 'English', format: 'Paperback' }, dateStarted: '2024-12-01', dateCompleted: '2024-12-15', tags: ['philosophy', 'warfare', 'classic'] },
-  { title: 'Succession', category: 'Show', status: 'In Progress', daysAgo: 7, year: 2018, creator: 'Jesse Armstrong', details: { seasons: 4, network: 'HBO', status: 'Finished' }, dateStarted: '2026-04-20', tags: ['drama', 'family', 'business'] },
+  { title: 'Succession', category: 'Show', status: 'In Progress', daysAgo: 7, year: 2018, creator: 'Jesse Armstrong', details: { seasons: 4, network: 'HBO', status: 'Finished' }, dateStarted: '2026-04-20', tags: ['drama', 'family', 'business'], current: 2 },
   { title: 'The Boys', category: 'Show', status: 'Completed', daysAgo: 14, year: 2019, creator: 'Eric Kripke', details: { seasons: 4, network: 'Prime Video', status: 'Ongoing' }, dateStarted: '2026-04-05', dateCompleted: '2026-04-18', tags: ['superhero', 'dark-comedy', 'action'] },
-  { title: 'Stranger Things', category: 'Show', status: 'On Hold', daysAgo: 45, year: 2016, creator: 'The Duffer Brothers', details: { seasons: 4, network: 'Netflix', status: 'Ongoing' }, dateStarted: '2026-03-10', tags: ['horror', 'retro', 'sci-fi'] },
+  { title: 'Stranger Things', category: 'Show', status: 'On Hold', daysAgo: 45, year: 2016, creator: 'The Duffer Brothers', details: { seasons: 4, network: 'Netflix', status: 'Ongoing' }, dateStarted: '2026-03-10', tags: ['horror', 'retro', 'sci-fi'], current: 3 },
   { title: 'The Crown', category: 'Show', status: 'Want to Start', daysAgo: 3, year: 2016, creator: 'Peter Morgan', details: { seasons: 6, network: 'Netflix', status: 'Finished' }, tags: ['drama', 'historical', 'royalty'] },
   { title: 'Better Call Saul', category: 'Show', status: 'Completed', daysAgo: 300, year: 2015, creator: 'Vince Gilligan & Peter Gould', details: { seasons: 6, network: 'AMC', status: 'Finished' }, dateStarted: '2025-07-01', dateCompleted: '2025-08-20', tags: ['drama', 'legal', 'prequel'] },
   { title: 'Breaking Bad', category: 'Show', status: 'Completed', daysAgo: 400, year: 2008, creator: 'Vince Gilligan', details: { seasons: 5, network: 'AMC', status: 'Finished' }, dateStarted: '2025-03-01', dateCompleted: '2025-04-15', tags: ['drama', 'crime', 'classic'] },
@@ -25,14 +25,14 @@ const seeds = [
   { title: 'Red Dead Redemption 2', category: 'Game', status: 'On Hold', daysAgo: 70, year: 2018, creator: 'Rockstar Studios', details: { platform: 'Xbox', publisher: 'Rockstar Games' }, dateStarted: '2026-02-20', tags: ['action', 'open-world', 'western'] },
   { title: 'Celeste', category: 'Game', status: 'Completed', daysAgo: 60, year: 2018, creator: 'Maddy Makes Games', details: { platform: 'Switch', publisher: 'Maddy Makes Games' }, dateStarted: '2026-03-01', dateCompleted: '2026-03-10', tags: ['platformer', 'indie', 'challenging'] },
   { title: 'Hollow Knight', category: 'Game', status: 'Want to Start', daysAgo: 1, year: 2017, creator: 'Team Cherry', details: { platform: 'Switch', publisher: 'Team Cherry' }, tags: ['metroidvania', 'indie', 'atmospheric'] },
-  { title: 'Serial', category: 'Podcast', status: 'Completed', daysAgo: 60, creator: 'Sarah Koenig', details: { episodes: 12, frequency: 'Weekly', website: 'https://serialpodcast.org' }, dateStarted: '2026-02-01', dateCompleted: '2026-04-01', tags: ['true-crime', 'investigative'] },
+  { title: 'Serial', category: 'Podcast', status: 'Completed', daysAgo: 60, creator: 'Sarah Koenig', details: { episodes: 12, frequency: 'Weekly', website: 'https://serialpodcast.org' }, dateStarted: '2026-02-01', dateCompleted: '2026-04-01', tags: ['true-crime', 'investigative'], current: 12 },
   { title: 'How I Built This', category: 'Podcast', status: 'In Progress', daysAgo: 3, creator: 'Guy Raz', details: { episodes: 200, frequency: 'Weekly', website: 'https://npr.org/howibuiltthis' }, dateStarted: '2026-04-28', tags: ['business', 'interviews'] },
-  { title: 'Hardcore History', category: 'Podcast', status: 'In Progress', daysAgo: 12, creator: 'Dan Carlin', details: { episodes: 68, frequency: 'Irregular', website: 'https://dancarlin.com' }, dateStarted: '2026-04-15', tags: ['history', 'deep-dive'] },
+  { title: 'Hardcore History', category: 'Podcast', status: 'In Progress', daysAgo: 12, creator: 'Dan Carlin', details: { episodes: 68, frequency: 'Irregular', website: 'https://dancarlin.com' }, dateStarted: '2026-04-15', tags: ['history', 'deep-dive'], current: 45 },
   { title: 'The Daily', category: 'Podcast', status: 'Want to Start', daysAgo: 1, creator: 'Michael Barbaro', details: { episodes: 5000, frequency: 'Daily', website: 'https://nytimes.com/thedaily' }, tags: ['news', 'daily'] },
   { title: 'Radiolab', category: 'Podcast', status: 'Completed', daysAgo: 250, creator: 'Jad Abumrad & Robert Krulwich', details: { episodes: 200, frequency: 'Weekly', website: 'https://radiolab.org' }, dateStarted: '2025-09-01', dateCompleted: '2025-10-01', tags: ['science', 'storytelling'] },
   { title: '99% Invisible', category: 'Podcast', status: 'Dropped', daysAgo: 200, creator: 'Roman Mars', details: { episodes: 600, frequency: 'Weekly', website: 'https://99percentinvisible.org' }, tags: ['design', 'architecture'] },
-  { title: 'Watchmen', category: 'Comic', status: 'Completed', daysAgo: 100, year: 1986, creator: 'Alan Moore & Dave Gibbons', details: { issues: 12, publisher: 'DC', format: 'Trade Paperback' }, dateStarted: '2026-01-01', dateCompleted: '2026-01-15', tags: ['superhero', 'classic', 'deconstruction'] },
-  { title: 'Saga', category: 'Comic', status: 'In Progress', daysAgo: 15, year: 2012, creator: 'Brian K. Vaughan & Fiona Staples', details: { issues: 66, publisher: 'Image', format: 'Trade Paperback' }, dateStarted: '2026-04-15', tags: ['sci-fi', 'fantasy', 'ongoing'] },
+  { title: 'Watchmen', category: 'Comic', status: 'Completed', daysAgo: 100, year: 1986, creator: 'Alan Moore & Dave Gibbons', details: { issues: 12, publisher: 'DC', format: 'Trade Paperback' }, dateStarted: '2026-01-01', dateCompleted: '2026-01-15', tags: ['superhero', 'classic', 'deconstruction'], current: 12 },
+  { title: 'Saga', category: 'Comic', status: 'In Progress', daysAgo: 15, year: 2012, creator: 'Brian K. Vaughan & Fiona Staples', details: { issues: 66, publisher: 'Image', format: 'Trade Paperback' }, dateStarted: '2026-04-15', tags: ['sci-fi', 'fantasy', 'ongoing'], current: 42 },
   { title: 'The Sandman', category: 'Comic', status: 'Completed', daysAgo: 200, year: 1989, creator: 'Neil Gaiman', details: { issues: 75, publisher: 'DC', format: 'Omnibus' }, dateStarted: '2025-10-01', dateCompleted: '2025-12-01', tags: ['fantasy', 'classic', 'vertigo'] },
   { title: 'Scott Pilgrim', category: 'Comic', status: 'Want to Start', daysAgo: 5, year: 2004, creator: 'Bryan Lee O\'Malley', details: { issues: 6, publisher: 'Oni Press', format: 'Trade Paperback' }, tags: ['comedy', 'indie', 'romance'] },
 ];
@@ -45,9 +45,9 @@ export async function seedDatabase(db: Database) {
 
   for (const s of seeds) {
     await db.execute(
-      `INSERT INTO core_media (title, media_category, status, date_added, year, creator, details, date_started, date_completed, tags)
-       VALUES ($1, $2, $3, datetime('now', $4), $5, $6, $7, $8, $9, $10)`,
-      [s.title, s.category, s.status, `-${s.daysAgo} days`, s.year ?? null, s.creator ?? null, JSON.stringify(s.details), s.dateStarted ?? null, s.dateCompleted ?? null, s.tags ? JSON.stringify(s.tags) : null]
+      `INSERT INTO core_media (title, media_category, status, date_added, year, creator, details, date_started, date_completed, tags, current)
+       VALUES ($1, $2, $3, datetime('now', $4), $5, $6, $7, $8, $9, $10, $11)`,
+      [s.title, s.category, s.status, `-${s.daysAgo} days`, s.year ?? null, s.creator ?? null, JSON.stringify(s.details), s.dateStarted ?? null, s.dateCompleted ?? null, s.tags ? JSON.stringify(s.tags) : null, s.current ?? null]
     );
   }
 }

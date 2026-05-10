@@ -64,6 +64,12 @@ pub fn run() {
             sql: "ALTER TABLE core_media ADD COLUMN tags TEXT;",
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 9,
+            description: "add current tracking column",
+            sql: "ALTER TABLE core_media ADD COLUMN current INTEGER;",
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

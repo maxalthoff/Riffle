@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getDb, type MediaEntry } from '$lib/db';
-  import { CATEGORIES, STATUSES, statusDisplayLabel, CREATOR_LABEL } from '$lib/types';
+  import { CATEGORIES, STATUSES, statusDisplayLabel, CREATOR_LABEL, CURRENT_LABEL } from '$lib/types';
   import { CATEGORY_DETAILS, parseDetails, type DetailField } from '$lib/schema';
   import Icon from '$lib/components/Icon.svelte';
   import { fly } from 'svelte/transition';
@@ -365,6 +365,14 @@
                           <span>{(field.fromEntry ? (entry as any)[field.key] : parseDetails(entry.details)[field.key]) ?? '—'}</span>
                         </div>
                       {/each}
+                      {#if entry.current != null && (entry.media_category === 'Show' || entry.media_category === 'Comic' || entry.media_category === 'Podcast')}
+                        {@const totalKey = entry.media_category === 'Comic' ? 'issues' : entry.media_category === 'Show' ? 'seasons' : 'episodes'}
+                        {@const total = parseDetails(entry.details)[totalKey]}
+                        <div class="panel-row">
+                          <span class="panel-label">{CURRENT_LABEL[entry.media_category] ?? 'Current'}</span>
+                          <span>{entry.current}{#if total != null} / {total}{/if}</span>
+                        </div>
+                      {/if}
                       {#if entry.tags}
                         <div class="panel-row">
                           <span class="panel-label">Tags</span>
