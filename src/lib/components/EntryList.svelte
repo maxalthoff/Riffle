@@ -275,14 +275,7 @@
                 <img src={entry.image} alt="" class="cover-thumb" />
               {/if}
               <div class="title-block">
-                <span>{entry.title}</span>
-                {#if entry.tags}
-                  <div class="title-tags">
-                    {#each parseTags(entry.tags) as tag}
-                      <span class="tag-chip">{tag}</span>
-                    {/each}
-                  </div>
-                {/if}
+                {entry.title}
               </div>
             </td>
             <td><Icon name={entry.media_category?.toLowerCase()} /> {entry.media_category ?? '—'}</td>
@@ -383,9 +376,6 @@
                         </div>
                       {/if}
                     </div>
-                  </div>
-                  <div class="panel-actions">
-                    <button class="icon-btn" onclick={() => onEdit(entry)} disabled={saving} title="Edit">✎ Edit</button>
                   </div>
                 </div>
               </td>
@@ -525,13 +515,6 @@
     display: flex;
     gap: 0.25rem;
     flex-wrap: wrap;
-  }
-  .panel-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid var(--border);
   }
 
   .cover-thumb {
