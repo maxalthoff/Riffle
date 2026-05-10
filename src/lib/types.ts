@@ -16,7 +16,7 @@ export const CREATOR_LABEL: Record<string, string> = {
 };
 
 export const CURRENT_LABEL: Record<string, string> = {
-  Show: 'Episode',
+  Show: 'Season',
   Comic: 'Issue',
   Podcast: 'Episode',
 };
