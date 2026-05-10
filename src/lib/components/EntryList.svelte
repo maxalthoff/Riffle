@@ -3,7 +3,8 @@
   import { CATEGORIES, STATUSES, statusDisplayLabel, CREATOR_LABEL } from '$lib/types';
   import { CATEGORY_DETAILS, parseDetails, type DetailField } from '$lib/schema';
   import Icon from '$lib/components/Icon.svelte';
-  import { slide } from 'svelte/transition';
+  import { fly } from 'svelte/transition';
+  import { cubicOut } from 'svelte/easing';
 
   let { entries, onEntriesChanged, onEdit, enabledCategories, onCategoryToggled }: { entries: MediaEntry[]; onEntriesChanged: () => void; onEdit: (entry: MediaEntry) => void; enabledCategories: Set<string>; onCategoryToggled: (category: string, enabled: boolean) => void } = $props();
 
@@ -335,7 +336,7 @@
           {#if expandedId === entry.id}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <tr class="info-row" transition:slide={{ duration: 150 }} onclick={() => toggleExpanded(entry.id)}>
+            <tr class="info-row" transition:fly={{ duration: 200, y: -8, opacity: 0, easing: cubicOut }} onclick={() => toggleExpanded(entry.id)}>
               <td colspan={columnCount}>
                 <div class="info-panel">
                   <div class="panel-body">
