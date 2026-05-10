@@ -80,7 +80,7 @@
     }
   });
 
-  const TABLE_HIDDEN_KEYS = ['frequency'];
+  const TABLE_HIDDEN_KEYS = ['frequency', 'country', 'format', 'status'];
 
   let detailColumns = $derived<DetailField[]>(
     filterCategory && CATEGORY_DETAILS[filterCategory]
