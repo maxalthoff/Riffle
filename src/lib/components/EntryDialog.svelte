@@ -29,6 +29,7 @@
   let allTags = $state<string[]>([]);
   let current = $state('');
   let isDragging = $state(false);
+  let notes = $state('');
   let today = new Date().toISOString().substring(0, 10);
 
   let creatorLabel = $derived(CREATOR_LABEL[category] ?? 'Creator');
@@ -46,6 +47,7 @@
       imageUrl = e.image ?? '';
       tags = parseTags(e.tags);
       current = e.current?.toString() ?? '';
+      notes = e.user_review ?? '';
       resetDetails(e.details);
     } else {
       title = '';
@@ -59,6 +61,7 @@
       imageUrl = '';
       tags = [];
       current = '';
+      notes = '';
     }
     error = '';
     loadAllTags();
@@ -171,14 +174,14 @@
 
       if (editing) {
         await db.execute(
-          'UPDATE core_media SET title = $1, media_category = $2, status = $3, year = $4, creator = $5, details = $6, date_started = $7, date_completed = $8, image = $9, tags = $10, current = $11 WHERE id = $12',
-          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, detailsJson, ds, dc, imageUrl || null, tags.length > 0 ? JSON.stringify(tags) : null, current ? Number(current) : null, entry!.id]
+          'UPDATE core_media SET title = $1, media_category = $2, status = $3, year = $4, creator = $5, details = $6, date_started = $7, date_completed = $8, image = $9, tags = $10, current = $11, user_review = $12 WHERE id = $13',
+          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, detailsJson, ds, dc, imageUrl || null, tags.length > 0 ? JSON.stringify(tags) : null, current ? Number(current) : null, notes.trim() || null, entry!.id]
         );
       } else {
         await db.execute(
-          `INSERT INTO core_media (title, media_category, status, year, creator, details, date_started, date_completed, image, tags, current)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, detailsJson, ds, dc, imageUrl || null, tags.length > 0 ? JSON.stringify(tags) : null, current ? Number(current) : null]
+          `INSERT INTO core_media (title, media_category, status, year, creator, details, date_started, date_completed, image, tags, current, user_review)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+          [trimmed, category, status, year ? Number(year) : null, creator.trim() || null, detailsJson, ds, dc, imageUrl || null, tags.length > 0 ? JSON.stringify(tags) : null, current ? Number(current) : null, notes.trim() || null]
         );
       }
       onClose();
@@ -337,6 +340,11 @@
         {/if}
       </div>
 
+      <div class="notes-section">
+        <label for="notes">Notes</label>
+        <textarea id="notes" bind:value={notes} disabled={saving} rows="3" placeholder="Any notes about this entry..."></textarea>
+      </div>
+
       {#if error}
         <p class="error">{error}</p>
       {/if}
@@ -455,6 +463,27 @@
     color: var(--danger);
     margin: 0;
     font-size: 0.85rem;
+  }
+  .notes-section {
+    border-top: 1px solid var(--border);
+    padding-top: 0.75rem;
+  }
+  .notes-section textarea {
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.95rem;
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius);
+    background: var(--input-bg);
+    color: var(--text);
+    resize: vertical;
+    font-family: var(--font);
+    box-sizing: border-box;
+  }
+  .notes-section textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 12%, transparent);
   }
   .tags-section {
     border-top: 1px solid var(--border);

@@ -383,6 +383,12 @@
                           </span>
                         </div>
                       {/if}
+                      {#if entry.user_review}
+                        <div class="panel-row">
+                          <span class="panel-label">Notes</span>
+                          <span class="panel-notes">{entry.user_review}</span>
+                        </div>
+                      {/if}
                     </div>
                   </div>
                 </div>
@@ -517,6 +523,12 @@
     display: flex;
     gap: 0.25rem;
     flex-wrap: wrap;
+  }
+  .panel-notes {
+    font-size: 0.85rem;
+    color: var(--text);
+    white-space: pre-wrap;
+    line-height: 1.4;
   }
 
   .cover-thumb {
