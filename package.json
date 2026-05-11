@@ -1,7 +1,7 @@
 {
   "name": "riffle",
   "version": "0.1.0",
-  "description": "",
+  "description": "A local-first media consumption tracker",
   "type": "module",
   "scripts": {
     "dev": "vite dev",
