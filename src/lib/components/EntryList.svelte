@@ -466,12 +466,6 @@
     flex-direction: column;
     min-width: 0;
   }
-  .title-tags {
-    display: flex;
-    gap: 0.25rem;
-    flex-wrap: wrap;
-    margin-top: 0.15rem;
-  }
   .tag-chip {
     font-size: 0.7rem;
     background: var(--surface);

@@ -5,6 +5,8 @@
   import { CATEGORIES, STATUSES, CREATOR_LABEL, CURRENT_LABEL, statusDisplayLabel } from '$lib/types';
   import { CATEGORY_DETAILS } from '$lib/schema';
   import Icon from '$lib/components/Icon.svelte';
+  import { getCurrentWindow } from '@tauri-apps/api/window';
+  import { invoke } from '@tauri-apps/api/core';
 
   let { entry, onClose, enabledCategories }: { entry: MediaEntry | null; onClose: () => void; enabledCategories: Set<string> } = $props();
 
@@ -26,6 +28,7 @@
   let tagInput = $state('');
   let allTags = $state<string[]>([]);
   let current = $state('');
+  let isDragging = $state(false);
   let today = new Date().toISOString().substring(0, 10);
 
   let creatorLabel = $derived(CREATOR_LABEL[category] ?? 'Creator');
@@ -119,7 +122,29 @@
 
   function removeCover() { imageUrl = ''; }
 
-  onMount(() => { resetForm(entry); });
+  async function readFileAsDataURL(path: string): Promise<string> {
+    return invoke<string>('read_image_as_data_url', { path });
+  }
+
+  onMount(() => {
+    resetForm(entry);
+    let unlisten: (() => void) | undefined;
+    getCurrentWindow().onDragDropEvent(async (event) => {
+      if (event.payload.type === 'over') {
+        isDragging = true;
+      } else if (event.payload.type === 'leave') {
+        isDragging = false;
+      } else if (event.payload.type === 'drop') {
+        isDragging = false;
+        const path = event.payload.paths?.[0];
+        if (!path) return;
+        const ext = path.split('.').pop()?.toLowerCase() ?? '';
+        if (!['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'].includes(ext)) return;
+        imageUrl = await readFileAsDataURL(path);
+      }
+    }).then(fn => { unlisten = fn; });
+    return () => { unlisten?.(); };
+  });
 
   function handleOverlayClick() {
     if (!saving) onClose();
@@ -188,13 +213,19 @@
 
       <div class="cover-section">
         {#if imageUrl}
-          <div class="cover-dropzone has-image">
+          <div class="cover-dropzone has-image"
+            class:dragover={isDragging}
+          >
             <img src={imageUrl} alt="Cover" class="cover-preview" />
             <span class="cover-status">Cover added</span>
             <button type="button" class="cover-remove" onclick={removeCover} disabled={saving}>✕</button>
           </div>
         {:else}
-          <div class="cover-dropzone" onclick={() => fileInput?.click()}>
+          <div
+            class="cover-dropzone"
+            class:dragover={isDragging}
+            onclick={() => fileInput?.click()}
+          >
             <span class="cover-icon">            <Icon name="image" size={24} /></span>
             <span class="cover-label">Add Cover</span>
           </div>
@@ -290,7 +321,7 @@
           />
           <datalist id="tag-suggestions">
             {#each allTags.filter(t => !tags.includes(t)) as tag}
-              <option value={tag} />
+              <option value={tag}></option>
             {/each}
           </datalist>
         </div>
@@ -483,6 +514,10 @@
   .cover-dropzone:hover {
     border-color: var(--primary);
     background: var(--surface);
+  }
+  .cover-dropzone.dragover {
+    border-color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
   }
   .cover-dropzone.has-image {
     border: 2px solid var(--border);

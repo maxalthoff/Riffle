@@ -1,4 +1,22 @@
+use base64::Engine;
 use tauri_plugin_sql::{Migration, MigrationKind};
+
+#[tauri::command]
+fn read_image_as_data_url(path: String) -> Result<String, String> {
+    let data = std::fs::read(&path).map_err(|e| e.to_string())?;
+    let ext = path.rsplit('.').next().unwrap_or("png").to_lowercase();
+    let mime = match ext.as_str() {
+        "jpg" | "jpeg" => "image/jpeg",
+        "png" => "image/png",
+        "gif" => "image/gif",
+        "webp" => "image/webp",
+        "bmp" => "image/bmp",
+        "svg" => "image/svg+xml",
+        _ => "image/png",
+    };
+    let b64 = base64::engine::general_purpose::STANDARD.encode(&data);
+    Ok(format!("data:{};base64,{}", mime, b64))
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -73,6 +91,7 @@ pub fn run() {
     ];
 
     tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![read_image_as_data_url])
         .plugin(tauri_plugin_opener::init())
         .plugin(
             tauri_plugin_sql::Builder::default()
