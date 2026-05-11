@@ -249,11 +249,11 @@
         </label>
       </div>
 
-      {#if CATEGORY_DETAILS[category]}
+      {#if (CATEGORY_DETAILS[category] ?? []).filter(f => !f.fromEntry).length > 0}
         <fieldset>
           <legend>{category} Details</legend>
           <div class="row">
-            {#each CATEGORY_DETAILS[category] as field}
+            {#each (CATEGORY_DETAILS[category] ?? []).filter(f => !f.fromEntry) as field}
               <label>
                 {field.label}
                 {#if field.type === 'select'}
